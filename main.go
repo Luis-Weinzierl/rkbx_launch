@@ -2,6 +2,8 @@ package main
 
 import (
 	"bufio"
+	"com/rkbx_launch/helpers"
+	"com/rkbx_launch/widgets"
 	"context"
 	"fmt"
 	"os"
@@ -18,11 +20,11 @@ import (
 func main() {
 	fmt.Println("Start")
 
-	config := parseConfigFile("./rkbx_link/config")
+	config := helpers.ParseConfigFile("./rkbx_link/config")
 
 	fmt.Println(config)
 
-	config.app_debug = true
+	config.App_debug = true
 
 	a := app.New()
 
@@ -32,30 +34,30 @@ func main() {
 	w.SetFixedSize(true)
 
 	oscOptions := container.NewVBox(
-		createIPEntry("Target Address"),
+		widgets.NewIPEntry("Destination IP Address", &config.Osc_destination),
 	)
 	oscOptions.Hide()
 
 	scrollBox := container.NewVScroll(
 		container.NewVBox(
-			createWidgetFromBoolWithSubmenu("OSC", &config.osc_enabled, oscOptions),
+			widgets.NewBoolConfigWithSubmenu("OSC", &config.Osc_enabled, oscOptions),
 			oscOptions,
-			createWidgetFromBool("sACN", &config.sacn_enabled),
-			createWidgetFromBool("Ableton Link", &config.link_enabled),
-			createWidgetFromBool("File Output", &config.file_enabled),
-			createWidgetFromBool("Setlist Logging", &config.setlist_enabled),
+			widgets.NewBoolConfig("sACN", &config.Sacn_enabled),
+			widgets.NewBoolConfig("Ableton Link", &config.Link_enabled),
+			widgets.NewBoolConfig("File Output", &config.File_enabled),
+			widgets.NewBoolConfig("Setlist Logging", &config.Setlist_enabled),
 		),
 	)
 
 	scrollBox.SetMinSize(fyne.Size{Width: 400, Height: 500})
 
-	offLogo := createLogoImageFromURI("assets/LinkLogoGray.png")
-	onLogo := createLogoImageFromURI("assets/LinkLogoGlowing.png")
+	offLogo := widgets.NewLogoImage("assets/LinkLogoGray.png")
+	onLogo := widgets.NewLogoImage("assets/LinkLogoGlowing.png")
 
 	onLogo.Hide()
 
-	stateConnected := createStateImageFromURI("assets/state_connected.png")
-	stateDisconnected := createStateImageFromURI("assets/state_disconnected.png")
+	stateConnected := widgets.NewStateImage("assets/state_connected.png")
+	stateDisconnected := widgets.NewStateImage("assets/state_disconnected.png")
 
 	running := false
 
@@ -89,7 +91,7 @@ func main() {
 		}
 	}
 
-	saveButton := widget.NewButton("Save", func() { storeConfigFile(config, "./rkbx_link/config") })
+	saveButton := widget.NewButton("Save", func() { helpers.StoreConfigFile(config, "./rkbx_link/config") })
 
 	logoStack := container.NewStack(offLogo, onLogo)
 	stateStack := container.NewStack(stateConnected, stateDisconnected)
@@ -144,61 +146,4 @@ func attachScanner(cmd *exec.Cmd, c chan int, connectedWidget *canvas.Image, dis
 		fmt.Println(line)
 	}
 	c <- 1
-}
-
-func createLogoImageFromURI(uri string) *canvas.Image {
-	logo := canvas.NewImageFromFile(uri)
-	logo.SetMinSize(fyne.Size{Width: 75, Height: 75})
-	logo.FillMode = canvas.ImageFillContain
-	return logo
-}
-
-func createStateImageFromURI(uri string) *canvas.Image {
-	logo := canvas.NewImageFromFile(uri)
-	logo.SetMinSize(fyne.Size{Width: 50, Height: 50})
-	logo.FillMode = canvas.ImageFillContain
-	logo.Hide()
-	return logo
-}
-
-func createWidgetFromBool(label string, configEntry *bool) *widget.Check {
-	w := widget.NewCheck(label, func(b bool) {
-		switchCallback(b, configEntry)
-	})
-	w.SetChecked(*configEntry)
-	return w
-}
-
-func createWidgetFromBoolWithSubmenu(label string, configEntry *bool, submenu *fyne.Container) *widget.Check {
-	w := widget.NewCheck(label, func(b bool) {
-		switchCallback(b, configEntry)
-
-		if b {
-			(*submenu).Show()
-		} else {
-			(*submenu).Hide()
-		}
-	})
-	w.SetChecked(*configEntry)
-	return w
-}
-
-func createIPEntry(label string) *fyne.Container {
-	return container.NewVBox(
-		widget.NewLabel(label),
-		container.NewHBox(
-			widget.NewEntry(),
-			widget.NewLabel("."),
-			widget.NewEntry(),
-			widget.NewLabel("."),
-			widget.NewEntry(),
-			widget.NewLabel("."),
-			widget.NewEntry(),
-			widget.NewLabel(":"),
-			widget.NewEntry()),
-	)
-}
-
-func switchCallback(b bool, configEntry *bool) {
-	*configEntry = b
 }
