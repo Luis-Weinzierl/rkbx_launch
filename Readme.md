@@ -34,4 +34,4 @@ To build and package rkbx_launch, run this command:
 fyne package
 ```
 
-NOTE: rkbx_link requires the `/assets` and `/rkbx_link` folders at runtime.
+NOTE: rkbx_launch requires the `/rkbx_link` folder at runtime.

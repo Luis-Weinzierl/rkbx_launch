@@ -5,6 +5,7 @@ import (
 	"com/rkbx_launch/helpers"
 	"com/rkbx_launch/widgets"
 	"context"
+	"embed"
 	"fmt"
 	"os"
 	"os/exec"
@@ -16,6 +17,20 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 )
+
+var assets embed.FS
+
+//go:embed assets/LinkLogoGlowing.png
+var asset_logoGlowing []byte
+
+//go:embed assets/LinkLogoGray.png
+var asset_logoGray []byte
+
+//go:embed assets/state_connected.png
+var asset_stateConnected []byte
+
+//go:embed assets/state_disconnected.png
+var asset_stateDisconnected []byte
 
 func main() {
 	fmt.Println("Start")
@@ -48,13 +63,13 @@ func main() {
 
 	scrollBox.SetMinSize(fyne.Size{Width: 400, Height: 500})
 
-	offLogo := widgets.NewLogoImage("assets/LinkLogoGray.png")
-	onLogo := widgets.NewLogoImage("assets/LinkLogoGlowing.png")
+	offLogo := widgets.NewLogoImage(asset_logoGray, "LinkLogoGray.png")
+	onLogo := widgets.NewLogoImage(asset_logoGlowing, "LinkLogoGlowing.png")
 
 	onLogo.Hide()
 
-	stateConnected := widgets.NewStateImage("assets/state_connected.png")
-	stateDisconnected := widgets.NewStateImage("assets/state_disconnected.png")
+	stateConnected := widgets.NewStateImage(asset_stateConnected, "state_connected.png")
+	stateDisconnected := widgets.NewStateImage(asset_stateDisconnected, "state_disconnected.png")
 
 	running := false
 
@@ -117,7 +132,6 @@ func setupRkbxLinkProcess(ctx context.Context, connectedWidget *canvas.Image, di
 
 	cmd := exec.CommandContext(ctx, wd+"/rkbx_link/rkbx_link.exe")
 	cmd.Dir = wd + "/rkbx_link"
-	cmd.Stderr = os.Stderr
 
 	c := make(chan int)
 	go attachScanner(cmd, c, connectedWidget, disconnectedWidget)
@@ -132,12 +146,18 @@ func attachScanner(cmd *exec.Cmd, c chan int, connectedWidget *canvas.Image, dis
 	for scanner.Scan() {
 		line := scanner.Text()
 
+		// TODO: state icon sometimes only shows after mouse moves
+
 		if strings.Contains(line, "Ensure Rekordbox is running!") {
-			connectedWidget.Hide()
-			disconnectedWidget.Show()
+			fyne.Do(func() {
+				connectedWidget.Hide()
+				disconnectedWidget.Show()
+			})
 		} else if strings.Contains(line, "Connected") {
-			connectedWidget.Show()
-			disconnectedWidget.Hide()
+			fyne.Do(func() {
+				connectedWidget.Show()
+				disconnectedWidget.Hide()
+			})
 		}
 
 		fmt.Println(line)
