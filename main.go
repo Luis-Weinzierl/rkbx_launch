@@ -4,20 +4,25 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	"image/color"
 	"os"
 	"os/exec"
+	"strings"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
 
 func main() {
 	fmt.Println("Start")
+
+	config := parseConfigFile("./rkbx_link/config")
+
+	fmt.Println(config)
+
+	config.app_debug = true
 
 	a := app.New()
 
@@ -26,45 +31,79 @@ func main() {
 	w := a.NewWindow("Rkbx Launch")
 	w.SetFixedSize(true)
 
-	consoleLabel := widget.NewLabel("Hello Fyne!")
-	scrollBox := container.NewVScroll(consoleLabel)
+	oscOptions := container.NewVBox(
+		widget.NewLabel("Target Address"),
+		container.NewBorder(nil, nil, nil, widget.NewButton("Set", func() {}), widget.NewEntry()),
+	)
+	oscOptions.Hide()
 
-	scrollBox.SetMinSize(fyne.Size{Width: 700, Height: 300})
+	scrollBox := container.NewVScroll(
+		container.NewVBox(
+			createWidgetFromBoolWithSubmenu("OSC", &config.osc_enabled, oscOptions),
+			oscOptions,
+			createWidgetFromBool("sACN", &config.sacn_enabled),
+			createWidgetFromBool("Ableton Link", &config.link_enabled),
+			createWidgetFromBool("File Output", &config.file_enabled),
+			createWidgetFromBool("Setlist Logging", &config.setlist_enabled),
+		),
+	)
+
+	scrollBox.SetMinSize(fyne.Size{Width: 300, Height: 500})
+
+	offLogo := createLogoImageFromURI("assets/LinkLogoGray.png")
+	onLogo := createLogoImageFromURI("assets/LinkLogoGlowing.png")
+
+	onLogo.Hide()
+
+	stateConnected := createStateImageFromURI("assets/state_connected.png")
+	stateDisconnected := createStateImageFromURI("assets/state_disconnected.png")
 
 	running := false
 
 	ctx, cancel := context.WithCancel(context.Background())
-	cmd, c := setupRkbxLinkProcess(ctx, consoleLabel, scrollBox)
+	cmd, c := setupRkbxLinkProcess(ctx, stateConnected, stateDisconnected)
 
-	logo := canvas.NewImageFromFile("./assets/LinkLogo.png")
-	logo.SetMinSize(fyne.Size{Width: 100, Height: 100})
-	logo.FillMode = canvas.ImageFillContain
-
-	runButton := widget.NewButton("Run", func() {
+	runButton := widget.NewButton("Start", func() {})
+	runButton.OnTapped = func() {
 		if !running {
 			cmd.Start()
 
-			consoleLabel.SetText("Running...")
+			runButton.SetText("Stop")
 			fmt.Println("[rkbx_launch] Running...")
 			running = true
+			onLogo.Show()
+			offLogo.Hide()
 		} else {
 			cancel()
 			<-c
 
-			consoleLabel.SetText("Stopped.")
+			runButton.SetText("Start")
 			scrollBox.ScrollToTop()
 			fmt.Println("[rkbx_launch] Stopped.")
 			ctx, cancel = context.WithCancel(context.Background())
-			cmd, c = setupRkbxLinkProcess(ctx, consoleLabel, scrollBox)
+			cmd, c = setupRkbxLinkProcess(ctx, stateConnected, stateDisconnected)
 			running = false
+			stateConnected.Hide()
+			stateDisconnected.Hide()
+			onLogo.Hide()
+			offLogo.Show()
 		}
-	})
+	}
+
+	saveButton := widget.NewButton("Save", func() { storeConfigFile(config, "./rkbx_link/config") })
+
+	logoStack := container.NewStack(offLogo, onLogo)
+	stateStack := container.NewStack(stateConnected, stateDisconnected)
 
 	vbox := container.NewVBox(
-		container.NewHBox(
-			logo,
-			scrollBox,
+		container.NewBorder(
+			nil, nil,
+			logoStack,
+			stateStack,
+			nil,
 		),
+		scrollBox,
+		saveButton,
 		runButton,
 	)
 
@@ -75,7 +114,7 @@ func main() {
 	cancel()
 }
 
-func setupRkbxLinkProcess(ctx context.Context, outputLabel *widget.Label, scrollBox *container.Scroll) (*exec.Cmd, chan int) {
+func setupRkbxLinkProcess(ctx context.Context, connectedWidget *canvas.Image, disconnectedWidget *canvas.Image) (*exec.Cmd, chan int) {
 	wd, _ := os.Getwd()
 
 	cmd := exec.CommandContext(ctx, wd+"/rkbx_link/rkbx_link.exe")
@@ -83,59 +122,68 @@ func setupRkbxLinkProcess(ctx context.Context, outputLabel *widget.Label, scroll
 	cmd.Stderr = os.Stderr
 
 	c := make(chan int)
-	go attachScanner(cmd, outputLabel, scrollBox, c)
+	go attachScanner(cmd, c, connectedWidget, disconnectedWidget)
 
 	return cmd, c
 }
 
-func attachScanner(cmd *exec.Cmd, label *widget.Label, scrollWrap *container.Scroll, c chan int) {
+func attachScanner(cmd *exec.Cmd, c chan int, connectedWidget *canvas.Image, disconnectedWidget *canvas.Image) {
 	stdout, _ := cmd.StdoutPipe()
 	scanner := bufio.NewScanner(stdout)
 
 	for scanner.Scan() {
-		runes := []rune(scanner.Text())
+		line := scanner.Text()
 
-		if len(runes) > 9 {
-			runes = runes[9:]
+		if strings.Contains(line, "Ensure Rekordbox is running!") {
+			connectedWidget.Hide()
+			disconnectedWidget.Show()
+		} else if strings.Contains(line, "Connected") {
+			connectedWidget.Show()
+			disconnectedWidget.Hide()
 		}
-
-		if len(runes) > 90 {
-			runes = append(runes[:90], []rune("...")...) // Truncate long lines
-		}
-
-		line := string(runes)
 
 		fmt.Println(line)
-
-		fyne.Do(func() {
-			label.SetText(label.Text + "\r\n" + line)
-			scrollWrap.ScrollToBottom()
-		})
 	}
 	c <- 1
 }
 
-type RkbxTheme struct{}
+func createLogoImageFromURI(uri string) *canvas.Image {
+	logo := canvas.NewImageFromFile(uri)
+	logo.SetMinSize(fyne.Size{Width: 75, Height: 75})
+	logo.FillMode = canvas.ImageFillContain
+	return logo
+}
 
-func (m *RkbxTheme) Color(name fyne.ThemeColorName, variant fyne.ThemeVariant) color.Color {
-	if name == theme.ColorNameBackground {
-		if variant == theme.VariantLight {
-			return color.White
+func createStateImageFromURI(uri string) *canvas.Image {
+	logo := canvas.NewImageFromFile(uri)
+	logo.SetMinSize(fyne.Size{Width: 50, Height: 50})
+	logo.FillMode = canvas.ImageFillContain
+	logo.Hide()
+	return logo
+}
+
+func createWidgetFromBool(label string, configEntry *bool) *widget.Check {
+	w := widget.NewCheck(label, func(b bool) {
+		switchCallback(b, configEntry)
+	})
+	w.SetChecked(*configEntry)
+	return w
+}
+
+func createWidgetFromBoolWithSubmenu(label string, configEntry *bool, submenu *fyne.Container) *widget.Check {
+	w := widget.NewCheck(label, func(b bool) {
+		switchCallback(b, configEntry)
+
+		if b {
+			(*submenu).Show()
+		} else {
+			(*submenu).Hide()
 		}
-		return color.Black
-	}
-
-	return theme.DefaultTheme().Color(name, variant)
+	})
+	w.SetChecked(*configEntry)
+	return w
 }
 
-func (m *RkbxTheme) Icon(name fyne.ThemeIconName) fyne.Resource {
-	return theme.DefaultTheme().Icon(name)
-}
-
-func (m *RkbxTheme) Font(style fyne.TextStyle) fyne.Resource {
-	return theme.DefaultTheme().Font(style)
-}
-
-func (m *RkbxTheme) Size(name fyne.ThemeSizeName) float32 {
-	return theme.DefaultTheme().Size(name)
+func switchCallback(b bool, configEntry *bool) {
+	*configEntry = b
 }
