@@ -32,8 +32,7 @@ func main() {
 	w.SetFixedSize(true)
 
 	oscOptions := container.NewVBox(
-		widget.NewLabel("Target Address"),
-		container.NewBorder(nil, nil, nil, widget.NewButton("Set", func() {}), widget.NewEntry()),
+		createIPEntry("Target Address"),
 	)
 	oscOptions.Hide()
 
@@ -48,7 +47,7 @@ func main() {
 		),
 	)
 
-	scrollBox.SetMinSize(fyne.Size{Width: 300, Height: 500})
+	scrollBox.SetMinSize(fyne.Size{Width: 400, Height: 500})
 
 	offLogo := createLogoImageFromURI("assets/LinkLogoGray.png")
 	onLogo := createLogoImageFromURI("assets/LinkLogoGlowing.png")
@@ -182,6 +181,22 @@ func createWidgetFromBoolWithSubmenu(label string, configEntry *bool, submenu *f
 	})
 	w.SetChecked(*configEntry)
 	return w
+}
+
+func createIPEntry(label string) *fyne.Container {
+	return container.NewVBox(
+		widget.NewLabel(label),
+		container.NewHBox(
+			widget.NewEntry(),
+			widget.NewLabel("."),
+			widget.NewEntry(),
+			widget.NewLabel("."),
+			widget.NewEntry(),
+			widget.NewLabel("."),
+			widget.NewEntry(),
+			widget.NewLabel(":"),
+			widget.NewEntry()),
+	)
 }
 
 func switchCallback(b bool, configEntry *bool) {
