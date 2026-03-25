@@ -33,10 +33,7 @@ func main() {
 	w := a.NewWindow("Rkbx Launch")
 	w.SetFixedSize(true)
 
-	oscOptions := container.NewVBox(
-		widgets.NewIPEntry("Destination IP Address", &config.Osc_destination),
-	)
-	oscOptions.Hide()
+	oscOptions := widgets.NewOscOptions(&config)
 
 	scrollBox := container.NewVScroll(
 		container.NewVBox(
