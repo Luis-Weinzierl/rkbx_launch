@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"com/rkbx_launch/helpers"
+	"com/rkbx_launch/interfaces"
 	"com/rkbx_launch/widgets"
 	"context"
 	"fmt"
@@ -16,7 +17,6 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/data/validation"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -34,40 +34,17 @@ func main() {
 	w := a.NewWindow("rkbx_link")
 	w.SetFixedSize(true)
 
-	licenseWindow := a.NewWindow("Register rkbx_link")
-
-	licenseValidator := validation.NewRegexp("([A-Z0-9]{8}-){3}[A-Z0-9]{8}", "Invalid License Key Format.")
-
-	licenseEntry := widget.NewEntry()
-	licenseEntry.PlaceHolder = "xxxxxxxx-xxxxxxxx-xxxxxxxx-xxxxxxxx"
-	licenseEntry.AlwaysShowValidationError = true
-	licenseEntry.Validator = licenseValidator
-
-	licenseWindow.SetContent(
-		container.NewBorder(
-			nil,
-			container.NewVBox(
-				licenseEntry,
-				widget.NewButton("Register", func() {
-					if licenseEntry.Validate() == nil {
-						config.App_licenseKey = licenseEntry.Text
-						licenseWindow.Hide()
-						helpers.StoreConfigFile(config, "./rkbx_link/config")
-					}
-				}),
-				widget.NewButton("I'm only testing rkbx_link", func() {
-					licenseWindow.Hide()
-					w.Show()
-				}),
-			),
-			nil, nil,
-			widgets.NewHeader("Register rkbx_link"),
-		),
-	)
-
-	licenseWindow.CenterOnScreen()
-	licenseWindow.FixedSize()
-	licenseWindow.Resize(fyne.Size{Width: 500, Height: 300})
+	var licenseWindow fyne.Window
+	licenseWindow = interfaces.NewLicenseWindow(&a,
+		func(key string) {
+			config.App_licenseKey = key
+			licenseWindow.Hide()
+			helpers.StoreConfigFile(config, "./rkbx_link/config")
+		},
+		func() {
+			licenseWindow.Hide()
+			w.Show()
+		})
 
 	oscOptions := widgets.NewOscOptions(&config)
 	ablOptions := widgets.NewAblOptions(&config)
@@ -191,15 +168,20 @@ func main() {
 		),
 		nil,
 		nil,
-		container.NewStack(
-			configuration,
-			runningDisplay,
-		),
+		container.NewCenter(
+			container.NewStack(
+				configuration,
+				runningDisplay,
+			)),
 	)
 
 	w.SetContent(vbox)
 
 	w.CenterOnScreen()
+
+	windowSize := w.Canvas().Size()
+	windowSize.Width += 32
+	w.Resize(windowSize)
 
 	if config.App_licenseKey == "evaluation" {
 		licenseWindow.Show()
