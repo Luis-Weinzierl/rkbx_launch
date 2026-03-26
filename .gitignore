@@ -27,6 +27,10 @@ go.work.sum
 # env file
 .env
 
+rkbx_link/*
+rkbx_link*
+version_exe
+
 # Editor/IDE
 # .idea/
 # .vscode/
