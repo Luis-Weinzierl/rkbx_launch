@@ -75,11 +75,17 @@ func main() {
 	fileOptions := widgets.NewFileOptions(&config)
 	setlistOptions := widgets.NewSetlistOptions(&config)
 
+	availVersions := []string{"7.2.10", "7.2.8", "7.2.6", "7.2.4", "7.2.3", "7.2.2", "7.1.4"}
+
+	if config.App_licenseKey == "evaluation" {
+		availVersions = []string{"7.2.2"}
+	}
+
 	configuration := container.NewVScroll(
 		container.NewVBox(
 			widgets.NewHeader("Configuration"),
 			widgets.NewSubheader("General"),
-			widgets.NewSelectEntry("Rekordbox Version", &config.Keeper_rekordboxVersion, []string{"7.2.10", "7.2.8", "7.2.6", "7.2.4", "7.2.3", "7.2.2", "7.1.4"}),
+			widgets.NewSelectEntry("Rekordbox Version", &config.Keeper_rekordboxVersion, availVersions),
 			widgets.NewBoolConfig("Auto-Update", &config.App_autoUpdate),
 			widgets.NewBoolConfig("Debug Mode", &config.App_debug),
 			widgets.NewBoolConfig("Keep non-master decks warm", &config.Keeper_keepWarm),
