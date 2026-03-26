@@ -17,16 +17,11 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 )
 
 func main() {
-	config := helpers.ParseConfigFile("./rkbx_link/config")
-
-	fmt.Println(config)
-
-	config.App_debug = true
-
 	a := app.New()
 
 	a.Settings().SetTheme(&RkbxTheme{})
@@ -34,6 +29,7 @@ func main() {
 	w := a.NewWindow("rkbx_link")
 	w.SetFixedSize(true)
 
+	var config helpers.RkbxConfig
 	var licenseWindow fyne.Window
 	licenseWindow = interfaces.NewLicenseWindow(&a,
 		func(key string) {
@@ -45,6 +41,31 @@ func main() {
 			licenseWindow.Hide()
 			w.Show()
 		})
+
+	version, err := getInstalledVersion()
+
+	if err != nil {
+		dia := dialog.NewConfirm("Install rkbx_link?", "rkbx_launch couldn't find rkbx_link. Install now?", func(b bool) {
+			if b {
+				downloadLatestVersion()
+				version, err = getInstalledVersion()
+			} else {
+				panic("cancelled")
+			}
+		}, licenseWindow)
+		dia.Show()
+	} else if isUpdateAvailable(version) {
+		dia := dialog.NewConfirm("Update rkbx_link?", "An update for rkbx_link is available. Install now?", func(b bool) {
+			if b {
+				downloadLatestVersion()
+				version, err = getInstalledVersion()
+			}
+		}, licenseWindow)
+
+		dia.Show()
+	}
+
+	config = helpers.ParseConfigFile("./rkbx_link/config")
 
 	oscOptions := widgets.NewOscOptions(&config)
 	ablOptions := widgets.NewAblOptions(&config)
@@ -233,15 +254,44 @@ func attachScanner(cmd *exec.Cmd, c chan int, connectedWidget *canvas.Image, dis
 	c <- 1
 }
 
-func download_rkbx_link() {
-	out, _ := os.Create("latest.temp.zip")
-	defer out.Close()
-	resp, err := http.Get("https://github.com/grufkork/rkbx_link/releases/latest/download/rkbx_link_win.zip")
+func getInstalledVersion() (string, error) {
+	stream, err := os.Open("version_exe")
 
 	if err != nil {
-		panic("AAAAAHHHHH!")
+		return "", err
+	}
+
+	content, err := io.ReadAll(stream)
+
+	return string(content), err
+}
+
+func isUpdateAvailable(installedVersion string) bool {
+	resp, err := http.Get("https://raw.githubusercontent.com/grufkork/rkbx_link/9113cbba11822f689af561f8b393016d8ba9093b/version_exe")
+
+	if err != nil {
+		return false
 	}
 
 	defer resp.Body.Close()
-	io.Copy(out, resp.Body)
+
+	body, err := io.ReadAll(resp.Body)
+
+	if err != nil {
+		return false
+	}
+
+	latest := string(body)
+
+	fmt.Println(latest)
+
+	return installedVersion != latest
+}
+
+func downloadLatestVersion() {
+	os.Remove("rkbx_link")
+	helpers.HttpDownloadFile("https://raw.githubusercontent.com/grufkork/rkbx_link/9113cbba11822f689af561f8b393016d8ba9093b/version_exe", "version_exe")
+	helpers.HttpDownloadFile("https://github.com/grufkork/rkbx_link/releases/latest/download/rkbx_link_win.zip", "latest.temp.zip")
+	helpers.Unzip("latest.temp.zip", "./rkbx_link/")
+	os.Remove("latest.temp.zip")
 }
