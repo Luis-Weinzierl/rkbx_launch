@@ -27,7 +27,17 @@ func (m *RkbxTheme) Icon(name fyne.ThemeIconName) fyne.Resource {
 }
 
 func (m *RkbxTheme) Font(style fyne.TextStyle) fyne.Resource {
-	return theme.DefaultTheme().Font(style)
+	if style.Bold && style.Italic {
+		return resourceInter28ptBoldItalicTtf
+	}
+	if style.Italic {
+		return resourceInter28ptItalicTtf
+	}
+	if style.Bold {
+		return resourceInter28ptBoldTtf
+	}
+
+	return resourceInter28ptRegularTtf
 }
 
 func (m *RkbxTheme) Size(name fyne.ThemeSizeName) float32 {

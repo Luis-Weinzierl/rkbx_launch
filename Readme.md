@@ -1,5 +1,5 @@
-# Rkbx Launch
-Rkbx Launch is a Launcher for [rkbx_link](https://github.com/grufkork/rkbx_link) written in Go and fyne and thus raises minimal overhead. It simplifies configuration by abstracting the old config-file behind a specially-built UI and makes working with rkbx_link just that bit more pleasant.
+# rkbx_launch for rkbx_link
+rkbx_launch is a Launcher for [rkbx_link](https://github.com/grufkork/rkbx_link) written in Go and fyne and thus raises minimal overhead. It simplifies configuration by abstracting the old config-file behind a specially-built UI and makes working with rkbx_link just that bit more pleasant.
 
 ## Developer Guide
 ### Prerequisites
@@ -21,6 +21,12 @@ To build and test rkbx_launch, you'll need to have Go, GCC and the Fyne Toolchai
     ```
     - If not already present, add `%USERPROFILE%\Go\bin` to your PATH
     - Check your installation by using the official [Fyne Setup](https://geoffrey-artefacts.fynelabs.com/github/andydotxyz/fyne-io/setup/latest/) (PS.: doesn't set up anything but rather checks if everything is set up)
+
+## Bundling assets
+All ressources used in rkbx_launch are located in the `/assets` folder. The ressources are bundled using the following command:
+```sh
+fyne bundle -o bundled.go ./assets/*
+```
 
 ## Running
 To run rkbx_launch (e.g. for testing), run the following command in the project root:
