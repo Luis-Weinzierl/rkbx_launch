@@ -49,23 +49,34 @@ func main() {
 			if b {
 				downloadLatestVersion()
 				version, err = getInstalledVersion()
+				config = helpers.ParseConfigFile("./rkbx_link/config")
+				fmt.Println(config)
 			} else {
 				panic("cancelled")
 			}
 		}, licenseWindow)
+
 		dia.Show()
+		licenseWindow.Show()
 	} else if isUpdateAvailable(version) {
 		dia := dialog.NewConfirm("Update rkbx_link?", "An update for rkbx_link is available. Install now?", func(b bool) {
 			if b {
 				downloadLatestVersion()
 				version, err = getInstalledVersion()
 			}
+			config = helpers.ParseConfigFile("./rkbx_link/config")
 		}, licenseWindow)
 
 		dia.Show()
+		licenseWindow.Show()
+	} else {
+		config = helpers.ParseConfigFile("./rkbx_link/config")
+		if config.App_licenseKey == "evaluation" {
+			licenseWindow.Show()
+		} else {
+			w.Show()
+		}
 	}
-
-	config = helpers.ParseConfigFile("./rkbx_link/config")
 
 	oscOptions := widgets.NewOscOptions(&config)
 	ablOptions := widgets.NewAblOptions(&config)
@@ -203,12 +214,6 @@ func main() {
 	windowSize := w.Canvas().Size()
 	windowSize.Width += 32
 	w.Resize(windowSize)
-
-	if config.App_licenseKey == "evaluation" {
-		licenseWindow.Show()
-	} else {
-		w.Show()
-	}
 
 	a.Run()
 
