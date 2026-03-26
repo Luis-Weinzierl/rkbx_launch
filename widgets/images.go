@@ -13,11 +13,3 @@ func NewLogoImage(data []byte, name string) *canvas.Image {
 	logo.FillMode = canvas.ImageFillContain
 	return logo
 }
-
-func NewStateImage(data []byte, name string) *canvas.Image {
-	logo := canvas.NewImageFromReader(bytes.NewReader(data), name)
-	logo.SetMinSize(fyne.Size{Width: 50, Height: 50})
-	logo.FillMode = canvas.ImageFillContain
-	logo.Hide()
-	return logo
-}
