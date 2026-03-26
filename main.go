@@ -15,6 +15,7 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/data/validation"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
@@ -48,6 +49,45 @@ func main() {
 
 	w := a.NewWindow("Rkbx Launch")
 	w.SetFixedSize(true)
+
+	licenseWindow := a.NewWindow("Register rkbx_link")
+
+	licenseValidator := validation.NewRegexp("([A-Z0-9]{8}-){3}[A-Z0-9]{8}", "Invalid License Key Format.")
+
+	licenseEntry := widget.NewEntry()
+	licenseEntry.PlaceHolder = "xxxxxxxx-xxxxxxxx-xxxxxxxx-xxxxxxxx"
+	licenseEntry.AlwaysShowValidationError = true
+	licenseEntry.Validator = licenseValidator
+
+	licenseHeader := canvas.NewText("Register rkbx_link", a.Settings().Theme().Color(theme.ColorNameForeground, 0))
+	licenseHeader.TextSize = 32
+	licenseHeader.Alignment = fyne.TextAlignCenter
+	licenseHeader.TextStyle.Bold = true
+
+	licenseWindow.SetContent(
+		container.NewBorder(
+			nil,
+			container.NewVBox(
+				licenseEntry,
+				widget.NewButton("Register", func() {
+					if licenseEntry.Validate() == nil {
+						config.App_licenseKey = licenseEntry.Text
+						licenseWindow.Hide()
+						helpers.StoreConfigFile(config, "./rkbx_link/config")
+					}
+				}),
+				widget.NewButton("I'm only testing rkbx_link", func() {
+					licenseWindow.Hide()
+				}),
+			),
+			nil, nil,
+			licenseHeader,
+		),
+	)
+
+	licenseWindow.CenterOnScreen()
+	licenseWindow.FixedSize()
+	licenseWindow.Resize(fyne.Size{Width: 500, Height: 300})
 
 	oscOptions := widgets.NewOscOptions(&config)
 	ablOptions := widgets.NewAblOptions(&config)
@@ -169,7 +209,14 @@ func main() {
 
 	w.SetContent(vbox)
 
-	w.ShowAndRun()
+	w.Show()
+	w.CenterOnScreen()
+
+	if config.App_licenseKey == "evaluation" {
+		licenseWindow.Show()
+	}
+
+	a.Run()
 
 	cancel()
 }
