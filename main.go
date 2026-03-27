@@ -17,19 +17,17 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 )
 
 func main() {
-	a := app.New()
+	a := app.NewWithID("rkbx_launch_app")
 
 	a.Settings().SetTheme(&RkbxTheme{})
 
-	w := a.NewWindow("rkbx_link")
-	w.SetFixedSize(true)
+	config := helpers.ParseConfigFile("./rkbx_link/config")
+	mainWindow, cancel := createMainWindow(a, &config)
 
-	var config helpers.RkbxConfig
 	var licenseWindow fyne.Window
 	licenseWindow = interfaces.NewLicenseWindow(&a,
 		func(key string) {
@@ -39,181 +37,14 @@ func main() {
 		},
 		func() {
 			licenseWindow.Hide()
-			w.Show()
+			mainWindow.Show()
 		})
 
-	version, err := getInstalledVersion()
-
-	if err != nil {
-		dia := dialog.NewConfirm("Install rkbx_link?", "rkbx_launch couldn't find rkbx_link. Install now?", func(b bool) {
-			if b {
-				downloadLatestVersion()
-				version, err = getInstalledVersion()
-				config = helpers.ParseConfigFile("./rkbx_link/config")
-				fmt.Println(config)
-			} else {
-				panic("cancelled")
-			}
-		}, licenseWindow)
-
-		dia.Show()
-		licenseWindow.Show()
-	} else if isUpdateAvailable(version) {
-		dia := dialog.NewConfirm("Update rkbx_link?", "An update for rkbx_link is available. Install now?", func(b bool) {
-			if b {
-				downloadLatestVersion()
-				version, err = getInstalledVersion()
-			}
-			config = helpers.ParseConfigFile("./rkbx_link/config")
-		}, licenseWindow)
-
-		dia.Show()
+	if config.App_licenseKey == "evaluation" {
 		licenseWindow.Show()
 	} else {
-		config = helpers.ParseConfigFile("./rkbx_link/config")
-		if config.App_licenseKey == "evaluation" {
-			licenseWindow.Show()
-		} else {
-			w.Show()
-		}
+		mainWindow.Show()
 	}
-
-	oscOptions := widgets.NewOscOptions(&config)
-	ablOptions := widgets.NewAblOptions(&config)
-	sacnOptions := widgets.NewSacnOptions(&config)
-	fileOptions := widgets.NewFileOptions(&config)
-	setlistOptions := widgets.NewSetlistOptions(&config)
-
-	availVersions := []string{"7.2.10", "7.2.8", "7.2.6", "7.2.4", "7.2.3", "7.2.2", "7.1.4"}
-
-	if config.App_licenseKey == "evaluation" {
-		availVersions = []string{"7.2.2"}
-	}
-
-	configuration := container.NewVScroll(
-		container.NewVBox(
-			widgets.NewHeader("Configuration"),
-			widgets.NewSubheader("General"),
-			widgets.NewSelectEntry("Rekordbox Version", &config.Keeper_rekordboxVersion, availVersions),
-			widgets.NewBoolConfig("Auto-Update", &config.App_autoUpdate),
-			widgets.NewBoolConfig("Debug Mode", &config.App_debug),
-			widgets.NewBoolConfig("Keep non-master decks warm", &config.Keeper_keepWarm),
-			widgets.NewEntrySlider("Update rate (Hz)", 10, 500, &config.Keeper_updateRate),
-			widgets.NewEntrySlider("Slow Update every n-th", 5, 20, &config.Keeper_slowUpdateEveryNth),
-			widgets.NewEntrySlider("Delay compensation (ms)", -5, 5, &config.Keeper_delayCompensation),
-			widgets.NewEntrySlider("Active Decks", 2, 4, &config.Keeper_decks),
-			widgets.NewSubheader(""), // Hacky Spacer
-			widgets.NewSubheader("Modules"),
-			widgets.NewTitle("Ableton® Link"),
-			widgets.NewBoolConfigWithSubmenu("Enabled", &config.Link_enabled, ablOptions),
-			ablOptions,
-			widgets.NewSubheader(""), // Hacky Spacer
-			widgets.NewTitle("Open Sound Control"),
-			widgets.NewBoolConfigWithSubmenu("Enabled", &config.Osc_enabled, oscOptions),
-			oscOptions,
-			widgets.NewSubheader(""), // Hacky Spacer
-			widgets.NewTitle("sACN"),
-			widgets.NewBoolConfigWithSubmenu("Enabled", &config.Sacn_enabled, sacnOptions),
-			sacnOptions,
-			widgets.NewSubheader(""), // Hacky Spacer
-			widgets.NewTitle("File Output"),
-			widgets.NewBoolConfigWithSubmenu("Enabled", &config.File_enabled, fileOptions),
-			fileOptions,
-			widgets.NewSubheader(""), // Hacky Spacer
-			widgets.NewTitle("Setlist Logging"),
-			widgets.NewBoolConfigWithSubmenu("Enabled", &config.Setlist_enabled, setlistOptions),
-			setlistOptions,
-		),
-	)
-
-	configuration.SetMinSize(fyne.Size{Width: 400, Height: 500})
-
-	runningDisplay := container.NewCenter(
-		widget.NewLabel("Stop rkbx_link to configure."),
-	)
-
-	runningDisplay.Hide()
-
-	offLogo := widgets.NewLogoImage(resourceLinkLogoGrayPng)
-	onLogo := widgets.NewLogoImage(resourceLinkLogoGlowingPng)
-
-	onLogo.Hide()
-
-	stateConnected := widgets.NewLogoImage(resourceIconRekordboxConnectedPng)
-	stateDisconnected := widgets.NewLogoImage(resourceIconRekordboxDisconnectedPng)
-
-	stateConnected.Hide()
-	stateDisconnected.Hide()
-
-	running := false
-
-	ctx, cancel := context.WithCancel(context.Background())
-	cmd, c := setupRkbxLinkProcess(ctx, stateConnected, stateDisconnected, &w)
-
-	runButton := widget.NewButton("Start", func() {})
-	saveButton := widget.NewButton("Save", func() { helpers.StoreConfigFile(config, "./rkbx_link/config") })
-
-	runButton.OnTapped = func() {
-		if !running {
-			cmd.Start()
-
-			runButton.SetText("Stop")
-			fmt.Println("[rkbx_launch] Running...")
-			running = true
-			saveButton.Hide()
-			configuration.Hide()
-			runningDisplay.Show()
-			onLogo.Show()
-			offLogo.Hide()
-		} else {
-			cancel()
-			<-c
-
-			runButton.SetText("Start")
-			fmt.Println("[rkbx_launch] Stopped.")
-			ctx, cancel = context.WithCancel(context.Background())
-			cmd, c = setupRkbxLinkProcess(ctx, stateConnected, stateDisconnected, &w)
-			running = false
-			saveButton.Show()
-			configuration.Show()
-			runningDisplay.Hide()
-			stateConnected.Hide()
-			stateDisconnected.Hide()
-			onLogo.Hide()
-			offLogo.Show()
-		}
-	}
-
-	logoStack := container.NewStack(offLogo, onLogo)
-	stateStack := container.NewStack(stateConnected, stateDisconnected)
-
-	vbox := container.NewBorder(
-		container.NewBorder(
-			nil, nil,
-			logoStack,
-			stateStack,
-			nil,
-		),
-		container.NewVBox(
-			saveButton,
-			runButton,
-		),
-		nil,
-		nil,
-		container.NewCenter(
-			container.NewStack(
-				configuration,
-				runningDisplay,
-			)),
-	)
-
-	w.SetContent(vbox)
-
-	w.CenterOnScreen()
-
-	windowSize := w.Canvas().Size()
-	windowSize.Width += 32
-	w.Resize(windowSize)
 
 	a.Run()
 
@@ -299,4 +130,161 @@ func downloadLatestVersion() {
 	helpers.HttpDownloadFile("https://github.com/grufkork/rkbx_link/releases/latest/download/rkbx_link_win.zip", "latest.temp.zip")
 	helpers.Unzip("latest.temp.zip", "./rkbx_link/")
 	os.Remove("latest.temp.zip")
+}
+
+func createMainWindow(a fyne.App, config *helpers.RkbxConfig) (fyne.Window, context.CancelFunc) {
+	w := a.NewWindow("rkbx_link")
+	w.SetFixedSize(true)
+
+	oscOptions := widgets.NewOscOptions(config)
+	ablOptions := widgets.NewAblOptions(config)
+	sacnOptions := widgets.NewSacnOptions(config)
+	fileOptions := widgets.NewFileOptions(config)
+	setlistOptions := widgets.NewSetlistOptions(config)
+
+	availVersions := []string{"7.2.10", "7.2.8", "7.2.6", "7.2.4", "7.2.3", "7.2.2", "7.1.4"}
+
+	if config.App_licenseKey == "evaluation" {
+		availVersions = []string{"7.2.2"}
+	}
+
+	configuration := container.NewVScroll(
+		container.NewVBox(
+			widgets.NewHeader("Configuration"),
+			widgets.NewSubheader("General"),
+			widgets.NewSelectEntry("Rekordbox Version", &config.Keeper_rekordboxVersion, availVersions),
+			widgets.NewBoolConfig("Auto-Update", &config.App_autoUpdate),
+			widgets.NewBoolConfig("Debug Mode", &config.App_debug),
+			widgets.NewBoolConfig("Keep non-master decks warm", &config.Keeper_keepWarm),
+			widgets.NewEntrySlider("Update rate (Hz)", 10, 500, &config.Keeper_updateRate),
+			widgets.NewEntrySlider("Slow Update every n-th", 5, 20, &config.Keeper_slowUpdateEveryNth),
+			widgets.NewEntrySlider("Delay compensation (ms)", -5, 5, &config.Keeper_delayCompensation),
+			widgets.NewEntrySlider("Active Decks", 2, 4, &config.Keeper_decks),
+			widgets.NewSubheader(""), // Hacky Spacer
+			widgets.NewSubheader("Modules"),
+			widgets.NewTitle("Ableton® Link"),
+			widgets.NewBoolConfigWithSubmenu("Enabled", &config.Link_enabled, ablOptions),
+			ablOptions,
+			widgets.NewSubheader(""), // Hacky Spacer
+			widgets.NewTitle("Open Sound Control"),
+			widgets.NewBoolConfigWithSubmenu("Enabled", &config.Osc_enabled, oscOptions),
+			oscOptions,
+			widgets.NewSubheader(""), // Hacky Spacer
+			widgets.NewTitle("sACN"),
+			widgets.NewBoolConfigWithSubmenu("Enabled", &config.Sacn_enabled, sacnOptions),
+			sacnOptions,
+			widgets.NewSubheader(""), // Hacky Spacer
+			widgets.NewTitle("File Output"),
+			widgets.NewBoolConfigWithSubmenu("Enabled", &config.File_enabled, fileOptions),
+			fileOptions,
+			widgets.NewSubheader(""), // Hacky Spacer
+			widgets.NewTitle("Setlist Logging"),
+			widgets.NewBoolConfigWithSubmenu("Enabled", &config.Setlist_enabled, setlistOptions),
+			setlistOptions,
+		),
+	)
+
+	configuration.SetMinSize(fyne.Size{Width: 400, Height: 500})
+
+	runningDisplay := container.NewCenter(
+		widget.NewLabel("Stop rkbx_link to configure."),
+	)
+
+	runningDisplay.Hide()
+
+	offLogo := widgets.NewLogoImage(resourceLinkLogoGrayPng)
+	onLogo := widgets.NewLogoImage(resourceLinkLogoGlowingPng)
+
+	onLogo.Hide()
+
+	stateConnected := widgets.NewLogoImage(resourceIconRekordboxConnectedPng)
+	stateDisconnected := widgets.NewLogoImage(resourceIconRekordboxDisconnectedPng)
+
+	stateConnected.Hide()
+	stateDisconnected.Hide()
+
+	running := false
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cmd, c := setupRkbxLinkProcess(ctx, stateConnected, stateDisconnected, &w)
+
+	runButton := widget.NewButton("Start", func() {})
+	saveButton := widget.NewButton("Save", func() { helpers.StoreConfigFile(*config, "./rkbx_link/config") })
+
+	runButton.OnTapped = func() {
+		if !running {
+			cmd.Start()
+
+			runButton.SetText("Stop")
+			fmt.Println("[rkbx_launch] Running...")
+			running = true
+			saveButton.Hide()
+			configuration.Hide()
+			runningDisplay.Show()
+			onLogo.Show()
+			offLogo.Hide()
+		} else {
+			cancel()
+			<-c
+
+			runButton.SetText("Start")
+			fmt.Println("[rkbx_launch] Stopped.")
+			ctx, cancel = context.WithCancel(context.Background())
+			cmd, c = setupRkbxLinkProcess(ctx, stateConnected, stateDisconnected, &w)
+			running = false
+			saveButton.Show()
+			configuration.Show()
+			runningDisplay.Hide()
+			stateConnected.Hide()
+			stateDisconnected.Hide()
+			onLogo.Hide()
+			offLogo.Show()
+		}
+	}
+
+	logoStack := container.NewStack(offLogo, onLogo)
+	stateStack := container.NewStack(stateConnected, stateDisconnected)
+
+	vbox := container.NewBorder(
+		container.NewBorder(
+			nil, nil,
+			logoStack,
+			stateStack,
+			nil,
+		),
+		container.NewVBox(
+			saveButton,
+			runButton,
+		),
+		nil,
+		nil,
+		container.NewCenter(
+			container.NewStack(
+				configuration,
+				runningDisplay,
+			)),
+	)
+
+	w.SetContent(vbox)
+
+	w.CenterOnScreen()
+
+	windowSize := w.Canvas().Size()
+	windowSize.Width += 32
+	w.Resize(windowSize)
+
+	return w, cancel
+}
+
+func updateLink() {
+	version, err := getInstalledVersion()
+
+	if err != nil {
+
+	} else if isUpdateAvailable(version) {
+
+	} else {
+
+	}
+
 }
