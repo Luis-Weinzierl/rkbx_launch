@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"com/rkbx_launch/helpers"
-	"com/rkbx_launch/interfaces"
 	"com/rkbx_launch/widgets"
 	"context"
 	"fmt"
@@ -21,15 +20,16 @@ import (
 )
 
 func main() {
+	fmt.Println("Start")
 	a := app.NewWithID("rkbx_launch_app")
 
 	a.Settings().SetTheme(&RkbxTheme{})
 
 	config := helpers.ParseConfigFile("./rkbx_link/config")
-	mainWindow, cancel := createMainWindow(a, &config)
+	mainWindow, cancel := newMainWindow(a, &config)
 
 	var licenseWindow fyne.Window
-	licenseWindow = interfaces.NewLicenseWindow(&a,
+	licenseWindow = newLicenseWindow(&a,
 		func(key string) {
 			config.App_licenseKey = key
 			licenseWindow.Hide()
@@ -38,12 +38,14 @@ func main() {
 		func() {
 			licenseWindow.Hide()
 			mainWindow.Show()
+			mainWindow.CenterOnScreen()
 		})
 
 	if config.App_licenseKey == "evaluation" {
 		licenseWindow.Show()
 	} else {
 		mainWindow.Show()
+		mainWindow.CenterOnScreen()
 	}
 
 	a.Run()
