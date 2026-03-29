@@ -20,20 +20,12 @@ func newMainWindow(a fyne.App, config *helpers.BoundRkbxConfig) (fyne.Window, co
 	fileOptions := widgets.NewFileOptions(config)
 	setlistOptions := widgets.NewSetlistOptions(config)
 
-	availVersions := []string{"7.2.10", "7.2.8", "7.2.6", "7.2.4", "7.2.3", "7.2.2", "7.1.4"}
-
-	/*
-		if config.IsEvaluation() {
-			availVersions = []string{"7.2.2"}
-		}
-	*/
-
 	configuration := container.NewVScroll(
 		container.NewBorder(nil, widget.NewLabel("\r\n"), widget.NewLabel("     "), widget.NewLabel("     "), // Hacky padding
 			container.NewVBox(
 				widgets.NewHeader("Configuration"),
 				widgets.NewSubheader("General"),
-				widgets.NewSelectEntry("Rekordbox Version", config.Keeper_rekordboxVersion, availVersions),
+				widgets.NewSelectEntry("Rekordbox Version", config.Keeper_rekordboxVersion, config.AvailableRekordboxVersions),
 				widgets.NewBoolConfig("Keep non-master decks warm", config.Keeper_keepWarm),
 				widgets.NewEntrySlider("Update rate (Hz)", 10, 500, config.Keeper_updateRate),
 				widgets.NewEntrySlider("Slow Update every n-th", 5, 20, config.Keeper_slowUpdateEveryNth),
@@ -88,10 +80,11 @@ func newMainWindow(a fyne.App, config *helpers.BoundRkbxConfig) (fyne.Window, co
 	cmd, c := setupRkbxLinkProcess(ctx, stateConnected, stateDisconnected, &w)
 
 	runButton := widget.NewButton("Start", func() {})
-	saveButton := widget.NewButton("Save", func() { helpers.StoreConfigFile(config, "./rkbx_link/config") })
+	saveButton := widget.NewButton("Save", func() { go helpers.StoreConfigFile(config, "./rkbx_link/config") })
 
 	runButton.OnTapped = func() {
 		if !running {
+			helpers.StoreConfigFile(config, "./rkbx_link/config")
 			cmd.Start()
 
 			runButton.SetText("Stop")

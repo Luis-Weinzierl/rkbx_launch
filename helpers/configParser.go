@@ -69,6 +69,9 @@ type BoundRkbxConfig struct {
 	Sacn_startChannel binding.Int
 	Sacn_mode         binding.String
 	Sacn_sourceName   binding.String
+
+	// ---------- Internal ----------
+	AvailableRekordboxVersions binding.StringList
 }
 
 func (config *BoundRkbxConfig) IsEvaluation() bool {
@@ -149,6 +152,14 @@ func fillFromConfigMap(config *BoundRkbxConfig, configMap map[string]string) {
 	config.Sacn_startChannel.Set(sacnStartChannel)
 	config.Sacn_mode.Set(configMap["sacn.mode"])
 	config.Sacn_sourceName.Set(configMap["sacn.source_name"])
+
+	availVersions := []string{"7.2.10", "7.2.8", "7.2.6", "7.2.4", "7.2.3", "7.2.2", "7.1.4"}
+
+	if config.IsEvaluation() {
+		availVersions = []string{"7.2.2"}
+	}
+
+	config.AvailableRekordboxVersions.Set(availVersions)
 }
 
 func convertToConfigMap(config *BoundRkbxConfig) map[string]string {
@@ -332,6 +343,7 @@ func NewBoundRkbxConfig() BoundRkbxConfig {
 		Sacn_startChannel:                binding.NewInt(),
 		Sacn_mode:                        binding.NewString(),
 		Sacn_sourceName:                  binding.NewString(),
+		AvailableRekordboxVersions:       binding.NewStringList(),
 	}
 }
 
