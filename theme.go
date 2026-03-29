@@ -15,6 +15,14 @@ func (m *RkbxTheme) Color(name fyne.ThemeColorName, variant fyne.ThemeVariant) c
 		return color.Black
 	case theme.ColorNameButton:
 		return color.RGBA{20, 20, 20, 255}
+	case theme.ColorNameInputBackground:
+		return color.RGBA{20, 20, 20, 255}
+	case theme.ColorNameInputBorder:
+		return color.RGBA{50, 50, 50, 255}
+	case theme.ColorNameFocus:
+		return color.RGBA{41, 76, 105, 255}
+	case theme.ColorNamePrimary:
+		return color.RGBA{20, 115, 235, 255}
 	case theme.ColorNameForegroundOnWarning:
 		return color.RGBA{224, 38, 38, 255}
 	}

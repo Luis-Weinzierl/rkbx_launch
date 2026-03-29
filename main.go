@@ -16,6 +16,9 @@ import (
 	"fyne.io/fyne/v2/canvas"
 )
 
+const configFilePath = "./rkbx_link/config"
+const linkDir = "./rkbx_link/"
+
 func main() {
 	fmt.Println("[rkbx_launch] Starting...")
 
@@ -31,7 +34,7 @@ func main() {
 		func(key string) {
 			config.App_licenseKey.Set(key)
 			licenseWindow.Hide()
-			helpers.StoreConfigFile(&config, "./rkbx_link/config")
+			helpers.StoreConfigFile(&config, configFilePath)
 		},
 		func() {
 			licenseWindow.Hide()
@@ -57,7 +60,7 @@ func main() {
 				downloadLatestVersion()
 				modal.Hide()
 
-				go helpers.LoadConfigFile("./rkbx_link/config", &config)
+				go helpers.LoadConfigFile(configFilePath, &config)
 				licenseWindow.Show()
 			},
 			func() {
@@ -94,7 +97,7 @@ func main() {
 }
 
 func mainLoop(config *helpers.BoundRkbxConfig, licenseWindow fyne.Window, mainWindow fyne.Window) {
-	helpers.LoadConfigFile("./rkbx_link/config", config)
+	helpers.LoadConfigFile(configFilePath, config)
 
 	if config.IsEvaluation() {
 		licenseWindow.Show()
@@ -182,7 +185,7 @@ func downloadLatestVersion() {
 	os.Remove("rkbx_link")
 	helpers.HttpDownloadFile("https://raw.githubusercontent.com/grufkork/rkbx_link/9113cbba11822f689af561f8b393016d8ba9093b/version_exe", "version_exe")
 	helpers.HttpDownloadFile("https://github.com/grufkork/rkbx_link/releases/latest/download/rkbx_link_win.zip", "latest.temp.zip")
-	helpers.Unzip("latest.temp.zip", "./rkbx_link/")
+	helpers.Unzip("latest.temp.zip", linkDir)
 	os.Remove("latest.temp.zip")
 }
 

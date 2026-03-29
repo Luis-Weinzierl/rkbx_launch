@@ -133,7 +133,6 @@ func newMainWindow(a fyne.App, config *helpers.BoundRkbxConfig) (fyne.Window, co
 			nil,
 		),
 		container.NewVBox(
-			widget.NewButton("Read", func() { helpers.LoadConfigFile("./rkbx_link/config", config) }),
 			saveButton,
 			runButton,
 		),
