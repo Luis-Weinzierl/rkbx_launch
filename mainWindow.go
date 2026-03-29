@@ -23,9 +23,11 @@ func newMainWindow(a fyne.App, config *helpers.BoundRkbxConfig) (fyne.Window, co
 
 	availVersions := []string{"7.2.10", "7.2.8", "7.2.6", "7.2.4", "7.2.3", "7.2.2", "7.1.4"}
 
-	if val, err := config.App_licenseKey.Get(); err == nil && val == "evaluation" {
-		availVersions = []string{"7.2.2"}
-	}
+	/*
+		if config.IsEvaluation() {
+			availVersions = []string{"7.2.2"}
+		}
+	*/
 
 	configuration := container.NewVScroll(
 		container.NewBorder(nil, widget.NewLabel("\r\n"), widget.NewLabel("     "), widget.NewLabel("     "), // Hacky padding

@@ -17,6 +17,10 @@ type BoundRkbxConfig struct {
 	App_autoUpdate binding.Bool
 	App_debug      binding.Bool
 
+	// ---------- Live Display ----------
+	Display_enabled  binding.Bool
+	Display_interval binding.Float
+
 	// ---------- BeatKeeper ----------
 	Keeper_rekordboxVersion   binding.String
 	Keeper_updateRate         binding.Int
@@ -30,25 +34,28 @@ type BoundRkbxConfig struct {
 	Link_cumulativeErrorTolerance binding.Float
 
 	// ---------- OSC ----------
-	Osc_enabled            binding.Bool
-	Osc_source             binding.String
-	Osc_destination        binding.String
-	Osc_sendEveryNth       binding.Int
-	Osc_phraseOutputFormat binding.String
+	Osc_enabled             binding.Bool
+	Osc_source              binding.String
+	Osc_destination         binding.String
+	Osc_sendEveryNth        binding.Int
+	Osc_phraseOutputFormat  binding.String
+	Osc_trigger_autorelease binding.Bool
 
-	Osc_msg_beatMaster      binding.Bool
-	Osc_msg_beatMaster_div1 binding.Bool
-	Osc_msg_beatMaster_div2 binding.Bool
-	Osc_msg_beatMaster_div4 binding.Bool
-	Osc_msg_timeMaster      binding.Bool
-	Osc_msg_phraseMaster    binding.Bool
+	Osc_msg_masterTime   binding.Bool
+	Osc_msg_masterPhrase binding.Bool
 
-	Osc_msg_beat      binding.Bool
-	Osc_msg_beat_div1 binding.Bool
-	Osc_msg_beat_div2 binding.Bool
-	Osc_msg_beat_div4 binding.Bool
-	Osc_msg_time      binding.Bool
-	Osc_msg_phrase    binding.Bool
+	Osc_msg_nTime   binding.Bool
+	Osc_msg_nPhrase binding.Bool
+
+	Osc_msg_masterBeatSubdiv         binding.Float
+	Osc_msg_masterBeatSubdivEnabled  binding.Bool
+	Osc_msg_masterBeatTrigger        binding.Float
+	Osc_msg_masterBeatTriggerEnabled binding.Bool
+
+	Osc_msg_nBeatSubdiv         binding.Float
+	Osc_msg_nBeatSubdivEnabled  binding.Bool
+	Osc_msg_nBeatTrigger        binding.Float
+	Osc_msg_nBeatTriggerEnabled binding.Bool
 
 	// ---------- File ----------
 	File_enabled  binding.Bool
@@ -78,6 +85,7 @@ func (config *BoundRkbxConfig) IsEvaluation() bool {
 }
 
 func fillFromConfigMap(config *BoundRkbxConfig, configMap map[string]string) {
+	displayInterval, err0 := strconv.ParseFloat(configMap["display.interval"], 32)
 	keeperUpdateRate, err1 := strconv.Atoi(configMap["keeper.update_rate"])
 	keeperSlowUpdateEveryNth, err2 := strconv.Atoi(configMap["keeper.slow_update_every_nth"])
 	keeperDelayCompensation, err3 := strconv.Atoi(configMap["keeper.delay_compensation"])
@@ -93,7 +101,8 @@ func fillFromConfigMap(config *BoundRkbxConfig, configMap map[string]string) {
 	sacnTargetsParts := strings.Split(sacnTargetsStr, " ")
 	sacnTargets := binding.BindStringList(&sacnTargetsParts)
 
-	if err1 != nil ||
+	if err0 != nil ||
+		err1 != nil ||
 		err2 != nil ||
 		err3 != nil ||
 		err4 != nil ||
@@ -108,6 +117,9 @@ func fillFromConfigMap(config *BoundRkbxConfig, configMap map[string]string) {
 	config.App_licenseKey.Set(configMap["app.licensekey"])
 	config.App_autoUpdate.Set(configMap["app.auto_update"] == "true")
 	config.App_debug.Set(configMap["app.debug"] == "true")
+
+	config.Display_enabled.Set(configMap["display.enabled"] == "true")
+	config.Display_interval.Set(displayInterval)
 
 	config.Keeper_rekordboxVersion.Set(configMap["keeper.rekordbox_version"])
 	config.Keeper_updateRate.Set(keeperUpdateRate)
@@ -124,20 +136,16 @@ func fillFromConfigMap(config *BoundRkbxConfig, configMap map[string]string) {
 	config.Osc_destination.Set(configMap["osc.destination"])
 	config.Osc_sendEveryNth.Set(oscSendEveryNth)
 	config.Osc_phraseOutputFormat.Set(configMap["osc.phrase_output_format"])
+	config.Osc_trigger_autorelease.Set(configMap["osc.trigger_autorelease"] == "true")
+	config.Osc_msg_masterTime.Set(configMap["osc.msg.master/time"] == "true")
+	config.Osc_msg_masterPhrase.Set(configMap["osc.msg.master/phrase"] == "true")
+	config.Osc_msg_nTime.Set(configMap["osc.msg.n/time"] == "true")
+	config.Osc_msg_nPhrase.Set(configMap["osc.msg.n/phrase"] == "true")
 
-	config.Osc_msg_beatMaster.Set(configMap["osc.msg.beat_master"] == "true")
-	config.Osc_msg_beatMaster_div1.Set(configMap["osc.msg.beat_master.div_1"] == "true")
-	config.Osc_msg_beatMaster_div2.Set(configMap["osc.msg.beat_master.div_2"] == "true")
-	config.Osc_msg_beatMaster_div4.Set(configMap["osc.msg.beat_master.div_4"] == "true")
-	config.Osc_msg_timeMaster.Set(configMap["osc.msg.time_master"] == "true")
-	config.Osc_msg_phraseMaster.Set(configMap["osc.msg.phrase_master"] == "true")
-
-	config.Osc_msg_beat.Set(configMap["osc.msg.beat"] == "true")
-	config.Osc_msg_beat_div1.Set(configMap["osc.msg.beat.div_1"] == "true")
-	config.Osc_msg_beat_div2.Set(configMap["osc.msg.beat.div_2"] == "true")
-	config.Osc_msg_beat_div4.Set(configMap["osc.msg.beat.div_4"] == "true")
-	config.Osc_msg_time.Set(configMap["osc.msg.time"] == "true")
-	config.Osc_msg_phrase.Set(configMap["osc.msg.phrase"] == "true")
+	OptionalStringToBindings(config.Osc_msg_masterBeatSubdiv, config.Osc_msg_masterBeatSubdivEnabled, configMap["osc.msg.master/beat/subdiv"])
+	OptionalStringToBindings(config.Osc_msg_masterBeatTrigger, config.Osc_msg_masterBeatTriggerEnabled, configMap["osc.msg.master/beat/trigger"])
+	OptionalStringToBindings(config.Osc_msg_nBeatSubdiv, config.Osc_msg_nBeatSubdivEnabled, configMap["osc.msg.n/beat/subdiv"])
+	OptionalStringToBindings(config.Osc_msg_nBeatTrigger, config.Osc_msg_nBeatTriggerEnabled, configMap["osc.msg.n/beat/trigger"])
 
 	config.File_enabled.Set(configMap["file.enabled"] == "true")
 	config.File_fileName.Set(configMap["file.filename"])
@@ -161,6 +169,9 @@ func convertToConfigMap(config *BoundRkbxConfig) map[string]string {
 	appAutoUpdate, _ := config.App_autoUpdate.Get()
 	appDebug, _ := config.App_debug.Get()
 
+	displayEnabled, _ := config.Display_enabled.Get()
+	displayInterval, _ := config.Display_interval.Get()
+
 	keeperRekordboxVersion, _ := config.Keeper_rekordboxVersion.Get()
 	keeperUpdateRate, _ := config.Keeper_updateRate.Get()
 	keeperSlowUpdateEveryNth, _ := config.Keeper_slowUpdateEveryNth.Get()
@@ -176,20 +187,11 @@ func convertToConfigMap(config *BoundRkbxConfig) map[string]string {
 	oscDestination, _ := config.Osc_destination.Get()
 	oscSendEveryNth, _ := config.Osc_sendEveryNth.Get()
 	oscPhraseOutputFormat, _ := config.Osc_phraseOutputFormat.Get()
-
-	oscMsgBeatMaster, _ := config.Osc_msg_beatMaster.Get()
-	oscMsgBeatMasterDiv1, _ := config.Osc_msg_beatMaster_div1.Get()
-	oscMsgBeatMasterDiv2, _ := config.Osc_msg_beatMaster_div2.Get()
-	oscMsgBeatMasterDiv4, _ := config.Osc_msg_beatMaster_div4.Get()
-	oscMsgTimeMaster, _ := config.Osc_msg_timeMaster.Get()
-	oscMsgPhraseMaster, _ := config.Osc_msg_phraseMaster.Get()
-
-	oscMsgBeat, _ := config.Osc_msg_beat.Get()
-	oscMsgBeatDiv1, _ := config.Osc_msg_beat_div1.Get()
-	oscMsgBeatDiv2, _ := config.Osc_msg_beat_div2.Get()
-	oscMsgBeatDiv4, _ := config.Osc_msg_beat_div4.Get()
-	oscMsgTime, _ := config.Osc_msg_time.Get()
-	oscMsgPhrase, _ := config.Osc_msg_phrase.Get()
+	oscTriggerAutoRelease, _ := config.Osc_trigger_autorelease.Get()
+	oscMsgMasterTime, _ := config.Osc_msg_masterTime.Get()
+	oscMsgMasterPhrase, _ := config.Osc_msg_masterPhrase.Get()
+	oscMsgNTime, _ := config.Osc_msg_nTime.Get()
+	oscMsgNPhrase, _ := config.Osc_msg_nPhrase.Get()
 
 	fileEnabled, _ := config.File_enabled.Get()
 	fileFileName, _ := config.File_fileName.Get()
@@ -212,6 +214,9 @@ func convertToConfigMap(config *BoundRkbxConfig) map[string]string {
 		"app.auto_update": fmt.Sprintf("%v", appAutoUpdate),
 		"app.debug":       fmt.Sprintf("%v", appDebug),
 
+		"display.enabled":  fmt.Sprintf("%v", displayEnabled),
+		"display.interval": fmt.Sprintf("%d", displayInterval),
+
 		"keeper.rekordbox_version":     keeperRekordboxVersion,
 		"keeper.update_rate":           fmt.Sprintf("%d", keeperUpdateRate),
 		"keeper.slow_update_every_nth": fmt.Sprintf("%d", keeperSlowUpdateEveryNth),
@@ -227,20 +232,19 @@ func convertToConfigMap(config *BoundRkbxConfig) map[string]string {
 		"osc.destination":          oscDestination,
 		"osc.send_every_nth":       fmt.Sprintf("%d", oscSendEveryNth),
 		"osc.phrase_output_format": oscPhraseOutputFormat,
+		"osc.trigger_autorelease":  fmt.Sprintf("%v", oscTriggerAutoRelease),
 
-		"osc.msg.beat_master":       fmt.Sprintf("%v", oscMsgBeatMaster),
-		"osc.msg.beat_master.div_1": fmt.Sprintf("%v", oscMsgBeatMasterDiv1),
-		"osc.msg.beat_master.div_2": fmt.Sprintf("%v", oscMsgBeatMasterDiv2),
-		"osc.msg.beat_master.div_4": fmt.Sprintf("%v", oscMsgBeatMasterDiv4),
-		"osc.msg.time_master":       fmt.Sprintf("%v", oscMsgTimeMaster),
-		"osc.msg.phrase_master":     fmt.Sprintf("%v", oscMsgPhraseMaster),
+		"osc.msg.master/time":   fmt.Sprintf("%v", oscMsgMasterTime),
+		"osc.msg.master/phrase": fmt.Sprintf("%v", oscMsgMasterPhrase),
 
-		"osc.msg.beat":       fmt.Sprintf("%v", oscMsgBeat),
-		"osc.msg.beat.div_1": fmt.Sprintf("%v", oscMsgBeatDiv1),
-		"osc.msg.beat.div_2": fmt.Sprintf("%v", oscMsgBeatDiv2),
-		"osc.msg.beat.div_4": fmt.Sprintf("%v", oscMsgBeatDiv4),
-		"osc.msg.time":       fmt.Sprintf("%v", oscMsgTime),
-		"osc.msg.phrase":     fmt.Sprintf("%v", oscMsgPhrase),
+		"osc.msg.n/time":   fmt.Sprintf("%v", oscMsgNTime),
+		"osc.msg.n/phrase": fmt.Sprintf("%v", oscMsgNPhrase),
+
+		"osc.msg.master/beat/subdiv":  OptionalToString(config.Osc_msg_masterBeatSubdiv, config.Osc_msg_masterBeatSubdivEnabled),
+		"osc.msg.master/beat/trigger": OptionalToString(config.Osc_msg_masterBeatTrigger, config.Osc_msg_masterBeatTriggerEnabled),
+
+		"osc.msg.n/beat/subdiv":  OptionalToString(config.Osc_msg_nBeatSubdiv, config.Osc_msg_nBeatSubdivEnabled),
+		"osc.msg.n/beat/trigger": OptionalToString(config.Osc_msg_nBeatTrigger, config.Osc_msg_nBeatTriggerEnabled),
 
 		"file.enabled":  fmt.Sprintf("%v", fileEnabled),
 		"file.filename": fileFileName,
@@ -281,6 +285,8 @@ func LoadConfigFile(filePath string, out *BoundRkbxConfig) {
 		parts := strings.SplitN(line, " ", 2)
 		if len(parts) == 2 {
 			configMap[parts[0]] = strings.TrimSpace(parts[1])
+		} else if len(parts) == 1 {
+			configMap[parts[0]] = ""
 		}
 	}
 
@@ -303,46 +309,73 @@ func StoreConfigFile(config *BoundRkbxConfig, filePath string) {
 
 func NewBoundRkbxConfig() BoundRkbxConfig {
 	return BoundRkbxConfig{
-		App_licenseKey:                binding.NewString(),
-		App_autoUpdate:                binding.NewBool(),
-		App_debug:                     binding.NewBool(),
-		Keeper_rekordboxVersion:       binding.NewString(),
-		Keeper_updateRate:             binding.NewInt(),
-		Keeper_slowUpdateEveryNth:     binding.NewInt(),
-		Keeper_delayCompensation:      binding.NewInt(),
-		Keeper_keepWarm:               binding.NewBool(),
-		Keeper_decks:                  binding.NewInt(),
-		Link_enabled:                  binding.NewBool(),
-		Link_cumulativeErrorTolerance: binding.NewFloat(),
-		Osc_enabled:                   binding.NewBool(),
-		Osc_source:                    binding.NewString(),
-		Osc_destination:               binding.NewString(),
-		Osc_sendEveryNth:              binding.NewInt(),
-		Osc_phraseOutputFormat:        binding.NewString(),
-		Osc_msg_beatMaster:            binding.NewBool(),
-		Osc_msg_beatMaster_div1:       binding.NewBool(),
-		Osc_msg_beatMaster_div2:       binding.NewBool(),
-		Osc_msg_beatMaster_div4:       binding.NewBool(),
-		Osc_msg_timeMaster:            binding.NewBool(),
-		Osc_msg_phraseMaster:          binding.NewBool(),
-		Osc_msg_beat:                  binding.NewBool(),
-		Osc_msg_beat_div1:             binding.NewBool(),
-		Osc_msg_beat_div2:             binding.NewBool(),
-		Osc_msg_beat_div4:             binding.NewBool(),
-		Osc_msg_time:                  binding.NewBool(),
-		Osc_msg_phrase:                binding.NewBool(),
-		File_enabled:                  binding.NewBool(),
-		File_fileName:                 binding.NewString(),
-		Setlist_enabled:               binding.NewBool(),
-		Setlist_seperator:             binding.NewString(),
-		Setlist_filename:              binding.NewString(),
-		Sacn_enabled:                  binding.NewBool(),
-		Sacn_source:                   binding.NewString(),
-		Sacn_targets:                  binding.NewStringList(),
-		Sacn_priority:                 binding.NewInt(),
-		Sacn_universe:                 binding.NewInt(),
-		Sacn_startChannel:             binding.NewInt(),
-		Sacn_mode:                     binding.NewString(),
-		Sacn_sourceName:               binding.NewString(),
+		App_licenseKey:                   binding.NewString(),
+		App_autoUpdate:                   binding.NewBool(),
+		App_debug:                        binding.NewBool(),
+		Display_enabled:                  binding.NewBool(),
+		Display_interval:                 binding.NewFloat(),
+		Keeper_rekordboxVersion:          binding.NewString(),
+		Keeper_updateRate:                binding.NewInt(),
+		Keeper_slowUpdateEveryNth:        binding.NewInt(),
+		Keeper_delayCompensation:         binding.NewInt(),
+		Keeper_keepWarm:                  binding.NewBool(),
+		Keeper_decks:                     binding.NewInt(),
+		Link_enabled:                     binding.NewBool(),
+		Link_cumulativeErrorTolerance:    binding.NewFloat(),
+		Osc_enabled:                      binding.NewBool(),
+		Osc_source:                       binding.NewString(),
+		Osc_destination:                  binding.NewString(),
+		Osc_sendEveryNth:                 binding.NewInt(),
+		Osc_phraseOutputFormat:           binding.NewString(),
+		Osc_trigger_autorelease:          binding.NewBool(),
+		Osc_msg_masterTime:               binding.NewBool(),
+		Osc_msg_masterPhrase:             binding.NewBool(),
+		Osc_msg_nTime:                    binding.NewBool(),
+		Osc_msg_nPhrase:                  binding.NewBool(),
+		Osc_msg_masterBeatSubdiv:         binding.NewFloat(),
+		Osc_msg_masterBeatSubdivEnabled:  binding.NewBool(),
+		Osc_msg_masterBeatTrigger:        binding.NewFloat(),
+		Osc_msg_masterBeatTriggerEnabled: binding.NewBool(),
+		Osc_msg_nBeatSubdiv:              binding.NewFloat(),
+		Osc_msg_nBeatSubdivEnabled:       binding.NewBool(),
+		Osc_msg_nBeatTrigger:             binding.NewFloat(),
+		Osc_msg_nBeatTriggerEnabled:      binding.NewBool(),
+		File_enabled:                     binding.NewBool(),
+		File_fileName:                    binding.NewString(),
+		Setlist_enabled:                  binding.NewBool(),
+		Setlist_seperator:                binding.NewString(),
+		Setlist_filename:                 binding.NewString(),
+		Sacn_enabled:                     binding.NewBool(),
+		Sacn_source:                      binding.NewString(),
+		Sacn_targets:                     binding.NewStringList(),
+		Sacn_priority:                    binding.NewInt(),
+		Sacn_universe:                    binding.NewInt(),
+		Sacn_startChannel:                binding.NewInt(),
+		Sacn_mode:                        binding.NewString(),
+		Sacn_sourceName:                  binding.NewString(),
+	}
+}
+
+func OptionalToString(value binding.Float, enabled binding.Bool) string {
+	if val, err := value.Get(); err == nil {
+		if enabledVal, err2 := enabled.Get(); err2 == nil && enabledVal {
+			return fmt.Sprintf("%v", val)
+		}
+	}
+	return ""
+}
+
+func OptionalStringToBindings(valueBind binding.Float, enabledBind binding.Bool, valueStr string) {
+	if valueStr == "" {
+		valueBind.Set(0)
+		enabledBind.Set(false)
+	} else {
+		if val, err := strconv.ParseFloat(valueStr, 32); err == nil {
+			valueBind.Set(val)
+			enabledBind.Set(true)
+		} else {
+			valueBind.Set(0)
+			enabledBind.Set(false)
+		}
 	}
 }

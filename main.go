@@ -34,6 +34,8 @@ func main() {
 		func(key string) {
 			config.App_licenseKey.Set(key)
 			licenseWindow.Hide()
+			mainWindow.Show()
+			mainWindow.CenterOnScreen()
 			helpers.StoreConfigFile(&config, configFilePath)
 		},
 		func() {
@@ -126,7 +128,7 @@ func attachScanner(cmd *exec.Cmd, c chan int, connectedWidget *canvas.Image, dis
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		if strings.Contains(line, "Ensure Rekordbox is running!") ||
+		if strings.Contains(line, "Read memory failed") ||
 			strings.Contains(line, "Connection to Rekordbox lost") {
 			fyne.Do(func() {
 				connectedWidget.Hide()
