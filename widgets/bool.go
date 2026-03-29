@@ -14,6 +14,14 @@ func NewBoolConfig(label string, binding binding.Bool) *widget.Check {
 func NewBoolConfigWithSubmenu(label string, bind binding.Bool, submenu *fyne.Container) *widget.Check {
 	w := widget.NewCheckWithData(label, bind)
 
+	val, _ := bind.Get()
+
+	if val {
+		submenu.Show()
+	} else {
+		submenu.Hide()
+	}
+
 	w.OnChanged = func(b bool) {
 		if b {
 			submenu.Show()
