@@ -19,7 +19,8 @@ import (
 func main() {
 	fmt.Println("Start")
 
-	config := helpers.LoadConfigFile("./rkbx_link/config")
+	config := helpers.NewBoundRkbxConfig()
+	helpers.LoadConfigFile("./rkbx_link/config", &config)
 
 	a := app.NewWithID("rkbx_launch_app")
 

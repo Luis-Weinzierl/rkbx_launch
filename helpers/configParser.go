@@ -70,124 +70,6 @@ type BoundRkbxConfig struct {
 	Sacn_sourceName   binding.String
 }
 
-type configEntry struct {
-	key   string
-	value string
-}
-
-func convertFromConfigMap(configMap map[string]string) BoundRkbxConfig {
-	keeperUpdateRate, err1 := strconv.Atoi(configMap["keeper.update_rate"])
-	keeperSlowUpdateEveryNth, err2 := strconv.Atoi(configMap["keeper.slow_update_every_nth"])
-	keeperDelayCompensation, err3 := strconv.Atoi(configMap["keeper.delay_compensation"])
-	keeperDecks, err4 := strconv.Atoi(configMap["keeper.decks"])
-	oscSendEveryNth, err5 := strconv.Atoi(configMap["osc.send_every_nth"])
-	sacnPriority, err6 := strconv.Atoi(configMap["sacn.priority"])
-	sacnUniverse, err7 := strconv.Atoi(configMap["sacn.universe"])
-	sacnStartChannel, err8 := strconv.Atoi(configMap["sacn.start_channel"])
-
-	linkCumulativeErrorTolerance, err9 := strconv.ParseFloat(configMap["link.cumulative_error_tolerance"], 32)
-
-	sacnTargetsStr := configMap["sacn.targets"]
-	sacnTargetsParts := strings.Split(sacnTargetsStr, " ")
-	sacnTargets := binding.BindStringList(&sacnTargetsParts)
-
-	if err1 != nil ||
-		err2 != nil ||
-		err3 != nil ||
-		err4 != nil ||
-		err5 != nil ||
-		err6 != nil ||
-		err7 != nil ||
-		err8 != nil ||
-		err9 != nil {
-		panic("Error parsing config values")
-	}
-
-	applicensekey := configMap["app.licensekey"]
-	appauto_update := configMap["app.auto_update"] == "true"
-	appdebug := configMap["app.debug"] == "true"
-	keeperrekordbox_version := configMap["keeper.rekordbox_version"]
-	keeperkeep_warm := configMap["keeper.keep_warm"] == "true"
-	linkenabled := configMap["link.enabled"] == "true"
-	oscenabled := configMap["osc.enabled"] == "true"
-	oscDestination := configMap["osc.destination"]
-	oscSource := configMap["osc.source"]
-	oscphrase_output_format := configMap["osc.phrase_output_format"]
-	oscmsgbeat_master := configMap["osc.msg.beat_master"] == "true"
-	oscmsgbeat_masterdiv_1 := configMap["osc.msg.beat_master.div_1"] == "true"
-	oscmsgbeat_masterdiv_2 := configMap["osc.msg.beat_master.div_2"] == "true"
-	oscmsgbeat_masterdiv_4 := configMap["osc.msg.beat_master.div_4"] == "true"
-	oscmsgtime_master := configMap["osc.msg.time_master"] == "true"
-	oscmsgphrase_master := configMap["osc.msg.phrase_master"] == "true"
-	oscmsgbeat := configMap["osc.msg.beat"] == "true"
-	oscmsgbeatdiv_1 := configMap["osc.msg.beat.div_1"] == "true"
-	oscmsgbeatdiv_2 := configMap["osc.msg.beat.div_2"] == "true"
-	oscmsgbeatdiv_4 := configMap["osc.msg.beat.div_4"] == "true"
-	oscmsgtime := configMap["osc.msg.time"] == "true"
-	oscmsgphrase := configMap["osc.msg.phrase"] == "true"
-	fileenabled := configMap["file.enabled"] == "true"
-	filefilename := configMap["file.filename"]
-	setlistenabled := configMap["setlist.enabled"] == "true"
-	setlistseparator := configMap["setlist.separator"]
-	setlistfilename := configMap["setlist.filename"]
-	sacnenabled := configMap["sacn.enabled"] == "true"
-	sacnSource := configMap["sacn.source"]
-	sacnmode := configMap["sacn.mode"]
-	sacnsource_name := configMap["sacn.source_name"]
-
-	return BoundRkbxConfig{
-		App_licenseKey: binding.BindString(&applicensekey),
-		App_autoUpdate: binding.BindBool(&appauto_update),
-		App_debug:      binding.BindBool(&appdebug),
-
-		Keeper_rekordboxVersion:   binding.BindString(&keeperrekordbox_version),
-		Keeper_updateRate:         binding.BindInt(&keeperUpdateRate),
-		Keeper_slowUpdateEveryNth: binding.BindInt(&keeperSlowUpdateEveryNth),
-		Keeper_delayCompensation:  binding.BindInt(&keeperDelayCompensation),
-		Keeper_keepWarm:           binding.BindBool(&keeperkeep_warm),
-		Keeper_decks:              binding.BindInt(&keeperDecks),
-
-		Link_enabled:                  binding.BindBool(&linkenabled),
-		Link_cumulativeErrorTolerance: binding.BindFloat(&linkCumulativeErrorTolerance),
-
-		Osc_enabled:            binding.BindBool(&oscenabled),
-		Osc_source:             binding.BindString(&oscSource),
-		Osc_destination:        binding.BindString(&oscDestination),
-		Osc_sendEveryNth:       binding.BindInt(&oscSendEveryNth),
-		Osc_phraseOutputFormat: binding.BindString(&oscphrase_output_format),
-
-		Osc_msg_beatMaster:      binding.BindBool(&oscmsgbeat_master),
-		Osc_msg_beatMaster_div1: binding.BindBool(&oscmsgbeat_masterdiv_1),
-		Osc_msg_beatMaster_div2: binding.BindBool(&oscmsgbeat_masterdiv_2),
-		Osc_msg_beatMaster_div4: binding.BindBool(&oscmsgbeat_masterdiv_4),
-		Osc_msg_timeMaster:      binding.BindBool(&oscmsgtime_master),
-		Osc_msg_phraseMaster:    binding.BindBool(&oscmsgphrase_master),
-
-		Osc_msg_beat:      binding.BindBool(&oscmsgbeat),
-		Osc_msg_beat_div1: binding.BindBool(&oscmsgbeatdiv_1),
-		Osc_msg_beat_div2: binding.BindBool(&oscmsgbeatdiv_2),
-		Osc_msg_beat_div4: binding.BindBool(&oscmsgbeatdiv_4),
-		Osc_msg_time:      binding.BindBool(&oscmsgtime),
-		Osc_msg_phrase:    binding.BindBool(&oscmsgphrase),
-
-		File_enabled:  binding.BindBool(&fileenabled),
-		File_fileName: binding.BindString(&filefilename),
-
-		Setlist_enabled:   binding.BindBool(&setlistenabled),
-		Setlist_seperator: binding.BindString(&setlistseparator),
-		Setlist_filename:  binding.BindString(&setlistfilename),
-
-		Sacn_enabled:      binding.BindBool(&sacnenabled),
-		Sacn_source:       binding.BindString(&sacnSource),
-		Sacn_targets:      sacnTargets,
-		Sacn_priority:     binding.BindInt(&sacnPriority),
-		Sacn_universe:     binding.BindInt(&sacnUniverse),
-		Sacn_startChannel: binding.BindInt(&sacnStartChannel),
-		Sacn_mode:         binding.BindString(&sacnmode),
-		Sacn_sourceName:   binding.BindString(&sacnsource_name),
-	}
-}
-
 func fillFromConfigMap(config *BoundRkbxConfig, configMap map[string]string) {
 	keeperUpdateRate, err1 := strconv.Atoi(configMap["keeper.update_rate"])
 	keeperSlowUpdateEveryNth, err2 := strconv.Atoi(configMap["keeper.slow_update_every_nth"])
@@ -370,7 +252,7 @@ func convertToConfigMap(config *BoundRkbxConfig) map[string]string {
 	}
 }
 
-func ParseConfigFile(filePath string, out *BoundRkbxConfig) {
+func LoadConfigFile(filePath string, out *BoundRkbxConfig) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		log.Fatal(err)
@@ -401,37 +283,6 @@ func ParseConfigFile(filePath string, out *BoundRkbxConfig) {
 	fillFromConfigMap(out, configMap)
 }
 
-func LoadConfigFile(filePath string) BoundRkbxConfig {
-	file, err := os.Open(filePath)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-
-	configMap := make(map[string]string)
-
-	for scanner.Scan() {
-		line := scanner.Text()
-
-		if strings.TrimSpace(line) == "" || strings.HasPrefix(line, "#") {
-			continue
-		}
-
-		parts := strings.SplitN(line, " ", 2)
-		if len(parts) == 2 {
-			configMap[parts[0]] = strings.TrimSpace(parts[1])
-		}
-	}
-
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-	}
-
-	return convertFromConfigMap(configMap)
-}
-
 func StoreConfigFile(config *BoundRkbxConfig, filePath string) {
 	lines := "# This file is auto-generated. Manual changes will be overwritten.\n\n"
 
@@ -442,45 +293,48 @@ func StoreConfigFile(config *BoundRkbxConfig, filePath string) {
 	os.WriteFile(filePath, []byte(lines), 0064)
 }
 
-type IPAddress struct {
-	Layer1 int
-	Layer2 int
-	Layer3 int
-	Layer4 int
-	Port   int
-}
-
-func (ip IPAddress) String() string {
-	return fmt.Sprintf("%d.%d.%d.%d:%d", ip.Layer1, ip.Layer2, ip.Layer3, ip.Layer4, ip.Port)
-}
-
-func parseIPAddress(ipString string) (IPAddress, error) {
-	parts := strings.Split(ipString, ":")
-
-	ipParts := strings.Split(parts[0], ".")
-	if len(ipParts) != 4 {
-		return IPAddress{}, fmt.Errorf("invalid IP address format")
+func NewBoundRkbxConfig() BoundRkbxConfig {
+	return BoundRkbxConfig{
+		App_licenseKey:                binding.NewString(),
+		App_autoUpdate:                binding.NewBool(),
+		App_debug:                     binding.NewBool(),
+		Keeper_rekordboxVersion:       binding.NewString(),
+		Keeper_updateRate:             binding.NewInt(),
+		Keeper_slowUpdateEveryNth:     binding.NewInt(),
+		Keeper_delayCompensation:      binding.NewInt(),
+		Keeper_keepWarm:               binding.NewBool(),
+		Keeper_decks:                  binding.NewInt(),
+		Link_enabled:                  binding.NewBool(),
+		Link_cumulativeErrorTolerance: binding.NewFloat(),
+		Osc_enabled:                   binding.NewBool(),
+		Osc_source:                    binding.NewString(),
+		Osc_destination:               binding.NewString(),
+		Osc_sendEveryNth:              binding.NewInt(),
+		Osc_phraseOutputFormat:        binding.NewString(),
+		Osc_msg_beatMaster:            binding.NewBool(),
+		Osc_msg_beatMaster_div1:       binding.NewBool(),
+		Osc_msg_beatMaster_div2:       binding.NewBool(),
+		Osc_msg_beatMaster_div4:       binding.NewBool(),
+		Osc_msg_timeMaster:            binding.NewBool(),
+		Osc_msg_phraseMaster:          binding.NewBool(),
+		Osc_msg_beat:                  binding.NewBool(),
+		Osc_msg_beat_div1:             binding.NewBool(),
+		Osc_msg_beat_div2:             binding.NewBool(),
+		Osc_msg_beat_div4:             binding.NewBool(),
+		Osc_msg_time:                  binding.NewBool(),
+		Osc_msg_phrase:                binding.NewBool(),
+		File_enabled:                  binding.NewBool(),
+		File_fileName:                 binding.NewString(),
+		Setlist_enabled:               binding.NewBool(),
+		Setlist_seperator:             binding.NewString(),
+		Setlist_filename:              binding.NewString(),
+		Sacn_enabled:                  binding.NewBool(),
+		Sacn_source:                   binding.NewString(),
+		Sacn_targets:                  binding.NewStringList(),
+		Sacn_priority:                 binding.NewInt(),
+		Sacn_universe:                 binding.NewInt(),
+		Sacn_startChannel:             binding.NewInt(),
+		Sacn_mode:                     binding.NewString(),
+		Sacn_sourceName:               binding.NewString(),
 	}
-
-	layer1, err1 := strconv.Atoi(ipParts[0])
-	layer2, err2 := strconv.Atoi(ipParts[1])
-	layer3, err3 := strconv.Atoi(ipParts[2])
-	layer4, err4 := strconv.Atoi(ipParts[3])
-	port := 0
-	var err5 error
-	if len(parts) > 1 {
-		port, err5 = strconv.Atoi(parts[1])
-	}
-
-	if err1 != nil || err2 != nil || err3 != nil || err4 != nil || err5 != nil {
-		return IPAddress{}, fmt.Errorf("invalid IP address format")
-	}
-
-	return IPAddress{
-		Layer1: layer1,
-		Layer2: layer2,
-		Layer3: layer3,
-		Layer4: layer4,
-		Port:   port,
-	}, nil
 }
