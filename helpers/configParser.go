@@ -31,8 +31,8 @@ type BoundRkbxConfig struct {
 
 	// ---------- OSC ----------
 	Osc_enabled            binding.Bool
-	Osc_source             IPAddress
-	Osc_destination        IPAddress
+	Osc_source             binding.String
+	Osc_destination        binding.String
 	Osc_sendEveryNth       binding.Int
 	Osc_phraseOutputFormat binding.String
 
@@ -61,8 +61,8 @@ type BoundRkbxConfig struct {
 
 	// ---------- sACN ----------
 	Sacn_enabled      binding.Bool
-	Sacn_source       IPAddress
-	Sacn_targets      []IPAddress
+	Sacn_source       binding.String
+	Sacn_targets      binding.StringList
 	Sacn_priority     binding.Int
 	Sacn_universe     binding.Int
 	Sacn_startChannel binding.Int
@@ -87,20 +87,9 @@ func convertFromConfigMap(configMap map[string]string) BoundRkbxConfig {
 
 	linkCumulativeErrorTolerance, err9 := strconv.ParseFloat(configMap["link.cumulative_error_tolerance"], 32)
 
-	oscSource, err10 := parseIPAddress(configMap["osc.source"])
-	oscDestination, err11 := parseIPAddress(configMap["osc.destination"])
-
-	sacnSource, err12 := parseIPAddress(configMap["sacn.source"])
 	sacnTargetsStr := configMap["sacn.targets"]
 	sacnTargetsParts := strings.Split(sacnTargetsStr, " ")
-	sacnTargets := make([]IPAddress, len(sacnTargetsParts))
-	for i, targetStr := range sacnTargetsParts {
-		target, err := parseIPAddress(targetStr)
-		if err != nil {
-			panic("Error parsing config values")
-		}
-		sacnTargets[i] = target
-	}
+	sacnTargets := binding.BindStringList(&sacnTargetsParts)
 
 	if err1 != nil ||
 		err2 != nil ||
@@ -110,10 +99,7 @@ func convertFromConfigMap(configMap map[string]string) BoundRkbxConfig {
 		err6 != nil ||
 		err7 != nil ||
 		err8 != nil ||
-		err9 != nil ||
-		err10 != nil ||
-		err11 != nil ||
-		err12 != nil {
+		err9 != nil {
 		panic("Error parsing config values")
 	}
 
@@ -124,6 +110,8 @@ func convertFromConfigMap(configMap map[string]string) BoundRkbxConfig {
 	keeperkeep_warm := configMap["keeper.keep_warm"] == "true"
 	linkenabled := configMap["link.enabled"] == "true"
 	oscenabled := configMap["osc.enabled"] == "true"
+	oscDestination := configMap["osc.destination"]
+	oscSource := configMap["osc.source"]
 	oscphrase_output_format := configMap["osc.phrase_output_format"]
 	oscmsgbeat_master := configMap["osc.msg.beat_master"] == "true"
 	oscmsgbeat_masterdiv_1 := configMap["osc.msg.beat_master.div_1"] == "true"
@@ -143,6 +131,7 @@ func convertFromConfigMap(configMap map[string]string) BoundRkbxConfig {
 	setlistseparator := configMap["setlist.separator"]
 	setlistfilename := configMap["setlist.filename"]
 	sacnenabled := configMap["sacn.enabled"] == "true"
+	sacnSource := configMap["sacn.source"]
 	sacnmode := configMap["sacn.mode"]
 	sacnsource_name := configMap["sacn.source_name"]
 
@@ -162,8 +151,8 @@ func convertFromConfigMap(configMap map[string]string) BoundRkbxConfig {
 		Link_cumulativeErrorTolerance: binding.BindFloat(&linkCumulativeErrorTolerance),
 
 		Osc_enabled:            binding.BindBool(&oscenabled),
-		Osc_source:             oscSource,
-		Osc_destination:        oscDestination,
+		Osc_source:             binding.BindString(&oscSource),
+		Osc_destination:        binding.BindString(&oscDestination),
 		Osc_sendEveryNth:       binding.BindInt(&oscSendEveryNth),
 		Osc_phraseOutputFormat: binding.BindString(&oscphrase_output_format),
 
@@ -189,7 +178,7 @@ func convertFromConfigMap(configMap map[string]string) BoundRkbxConfig {
 		Setlist_filename:  binding.BindString(&setlistfilename),
 
 		Sacn_enabled:      binding.BindBool(&sacnenabled),
-		Sacn_source:       sacnSource,
+		Sacn_source:       binding.BindString(&sacnSource),
 		Sacn_targets:      sacnTargets,
 		Sacn_priority:     binding.BindInt(&sacnPriority),
 		Sacn_universe:     binding.BindInt(&sacnUniverse),
@@ -211,20 +200,9 @@ func fillFromConfigMap(config *BoundRkbxConfig, configMap map[string]string) {
 
 	linkCumulativeErrorTolerance, err9 := strconv.ParseFloat(configMap["link.cumulative_error_tolerance"], 32)
 
-	oscSource, err10 := parseIPAddress(configMap["osc.source"])
-	oscDestination, err11 := parseIPAddress(configMap["osc.destination"])
-
-	sacnSource, err12 := parseIPAddress(configMap["sacn.source"])
 	sacnTargetsStr := configMap["sacn.targets"]
 	sacnTargetsParts := strings.Split(sacnTargetsStr, " ")
-	sacnTargets := make([]IPAddress, len(sacnTargetsParts))
-	for i, targetStr := range sacnTargetsParts {
-		target, err := parseIPAddress(targetStr)
-		if err != nil {
-			panic("Error parsing config values")
-		}
-		sacnTargets[i] = target
-	}
+	sacnTargets := binding.BindStringList(&sacnTargetsParts)
 
 	if err1 != nil ||
 		err2 != nil ||
@@ -234,10 +212,7 @@ func fillFromConfigMap(config *BoundRkbxConfig, configMap map[string]string) {
 		err6 != nil ||
 		err7 != nil ||
 		err8 != nil ||
-		err9 != nil ||
-		err10 != nil ||
-		err11 != nil ||
-		err12 != nil {
+		err9 != nil {
 		panic("Error parsing config values")
 	}
 	config.App_licenseKey.Set(configMap["app.licensekey"])
@@ -255,8 +230,8 @@ func fillFromConfigMap(config *BoundRkbxConfig, configMap map[string]string) {
 	config.Link_cumulativeErrorTolerance.Set(linkCumulativeErrorTolerance)
 
 	config.Osc_enabled.Set(configMap["osc.enabled"] == "true")
-	config.Osc_source = oscSource
-	config.Osc_destination = oscDestination
+	config.Osc_source.Set(configMap["osc.source"])
+	config.Osc_destination.Set(configMap["osc.destination"])
 	config.Osc_sendEveryNth.Set(oscSendEveryNth)
 	config.Osc_phraseOutputFormat.Set(configMap["osc.phrase_output_format"])
 
@@ -282,7 +257,7 @@ func fillFromConfigMap(config *BoundRkbxConfig, configMap map[string]string) {
 	config.Setlist_filename.Set(configMap["setlist.filename"])
 
 	config.Sacn_enabled.Set(configMap["sacn.enabled"] == "true")
-	config.Sacn_source = sacnSource
+	config.Sacn_source.Set(configMap["sacn.source"])
 	config.Sacn_targets = sacnTargets
 	config.Sacn_priority.Set(sacnPriority)
 	config.Sacn_universe.Set(sacnUniverse)
@@ -307,6 +282,8 @@ func convertToConfigMap(config *BoundRkbxConfig) map[string]string {
 	linkCumulativeErrorTolerance, _ := config.Link_cumulativeErrorTolerance.Get()
 
 	oscEnabled, _ := config.Osc_enabled.Get()
+	oscSource, _ := config.Osc_source.Get()
+	oscDestination, _ := config.Osc_destination.Get()
 	oscSendEveryNth, _ := config.Osc_sendEveryNth.Get()
 	oscPhraseOutputFormat, _ := config.Osc_phraseOutputFormat.Get()
 
@@ -332,6 +309,8 @@ func convertToConfigMap(config *BoundRkbxConfig) map[string]string {
 	setlistFilename, _ := config.Setlist_filename.Get()
 
 	sacnEnabled, _ := config.Sacn_enabled.Get()
+	sacnSource, _ := config.Sacn_source.Get()
+	sacnTargets, _ := config.Sacn_targets.Get()
 	sacnPriority, _ := config.Sacn_priority.Get()
 	sacnUniverse, _ := config.Sacn_universe.Get()
 	sacnStartChannel, _ := config.Sacn_startChannel.Get()
@@ -354,8 +333,8 @@ func convertToConfigMap(config *BoundRkbxConfig) map[string]string {
 		"link.cumulative_error_tolerance": fmt.Sprintf("%f", linkCumulativeErrorTolerance),
 
 		"osc.enabled":              fmt.Sprintf("%v", oscEnabled),
-		"osc.source":               config.Osc_source.String(),
-		"osc.destination":          config.Osc_destination.String(),
+		"osc.source":               oscSource,
+		"osc.destination":          oscDestination,
 		"osc.send_every_nth":       fmt.Sprintf("%d", oscSendEveryNth),
 		"osc.phrase_output_format": oscPhraseOutputFormat,
 
@@ -381,8 +360,8 @@ func convertToConfigMap(config *BoundRkbxConfig) map[string]string {
 		"setlist.filename":  setlistFilename,
 
 		"sacn.enabled":       fmt.Sprintf("%v", sacnEnabled),
-		"sacn.source":        config.Sacn_source.String(),
-		"sacn.targets":       IPsToString(config.Sacn_targets),
+		"sacn.source":        sacnSource,
+		"sacn.targets":       strings.Join(sacnTargets, " "),
 		"sacn.priority":      fmt.Sprintf("%d", sacnPriority),
 		"sacn.universe":      fmt.Sprintf("%d", sacnUniverse),
 		"sacn.start_channel": fmt.Sprintf("%d", sacnStartChannel),
@@ -473,14 +452,6 @@ type IPAddress struct {
 
 func (ip IPAddress) String() string {
 	return fmt.Sprintf("%d.%d.%d.%d:%d", ip.Layer1, ip.Layer2, ip.Layer3, ip.Layer4, ip.Port)
-}
-
-func IPsToString(ips []IPAddress) string {
-	strs := make([]string, len(ips))
-	for i, ip := range ips {
-		strs[i] = ip.String()
-	}
-	return strings.Join(strs, " ")
 }
 
 func parseIPAddress(ipString string) (IPAddress, error) {

@@ -9,7 +9,7 @@ import (
 
 func NewSacnOptions(config *helpers.BoundRkbxConfig) *fyne.Container {
 	sacnOptions := container.NewVBox(
-		NewIPOnlyEntry("Local Address to bind or sACN", &config.Sacn_source),
+		NewIPOnlyEntry("Local Address to bind or sACN", config.Sacn_source),
 		NewEntrySlider("Packet Priority", 1, 200, config.Sacn_priority),
 		NewEntrySlider("Universe", 1, 10, config.Sacn_universe),
 		NewEntrySlider("Start Channel", 1, 255, config.Sacn_startChannel),
