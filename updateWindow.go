@@ -1,8 +1,6 @@
 package main
 
 import (
-	"com/rkbx_launch/widgets"
-
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
@@ -10,6 +8,16 @@ import (
 
 func NewModalWindow(a *fyne.App, title string, hero string, accept string, deny string, acceptedCallback func(), cancelledCallback func()) fyne.Window {
 	modalWindow := (*a).NewWindow(title)
+
+	hStyle := widget.RichTextStyleHeading
+	hStyle.Alignment = fyne.TextAlignCenter
+
+	pStyle := widget.RichTextStyleParagraph
+	pStyle.Alignment = fyne.TextAlignCenter
+
+	rt := widget.NewRichText(
+		&widget.TextSegment{Text: title, Style: hStyle},
+		&widget.TextSegment{Text: hero, Style: pStyle})
 
 	modalWindow.SetContent(
 		container.NewBorder(
@@ -19,7 +27,9 @@ func NewModalWindow(a *fyne.App, title string, hero string, accept string, deny 
 				widget.NewButton(deny, cancelledCallback),
 			),
 			nil, nil,
-			widgets.NewHero(hero),
+			container.NewCenter(
+				rt,
+			),
 		),
 	)
 

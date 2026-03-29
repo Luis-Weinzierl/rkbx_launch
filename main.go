@@ -51,7 +51,7 @@ func main() {
 	if err != nil {
 		// rkbx_link is not (properly) installed, download
 		var modal fyne.Window
-		modal = NewModalWindow(&a, "No Installation Found", "No installation of rkbx_link was found. Would you like to download the latest version?", "Download", "Exit",
+		modal = NewModalWindow(&a, "No Installation Found", "No installation of rkbx_link was found. \nWould you like to download the latest version?", "Download", "Exit",
 			func() {
 				// Download latest version and open license window as the new copy cannot be registered
 				downloadLatestVersion()
@@ -71,7 +71,7 @@ func main() {
 	} else if isUpdateAvailable(version) {
 		// update available, download
 		var modal fyne.Window
-		modal = NewModalWindow(&a, "Update Available", "A new version of rkbx_link is available!", "Update", "Continue without updating",
+		modal = NewModalWindow(&a, "Update available", "A new version of rkbx_link is available!", "Update", "Continue without updating",
 			func() {
 				// Download latest version and continue to main / license window
 				downloadLatestVersion()
@@ -80,6 +80,7 @@ func main() {
 			},
 			func() {
 				modal.Hide()
+				mainLoop(&config, licenseWindow, mainWindow)
 			},
 		)
 		modal.Show()
@@ -93,7 +94,7 @@ func main() {
 }
 
 func mainLoop(config *helpers.BoundRkbxConfig, licenseWindow fyne.Window, mainWindow fyne.Window) {
-	go helpers.LoadConfigFile("./rkbx_link/config", config)
+	helpers.LoadConfigFile("./rkbx_link/config", config)
 
 	if config.IsEvaluation() {
 		licenseWindow.Show()
