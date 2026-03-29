@@ -13,7 +13,6 @@ import (
 
 func newMainWindow(a fyne.App, config *helpers.BoundRkbxConfig) (fyne.Window, context.CancelFunc) {
 	w := a.NewWindow("rkbx_link")
-	w.SetFixedSize(true)
 
 	oscOptions := widgets.NewOscOptions(config)
 	ablOptions := widgets.NewAblOptions(config)
