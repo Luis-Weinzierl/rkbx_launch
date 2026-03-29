@@ -97,6 +97,7 @@ func fillFromConfigMap(config *BoundRkbxConfig, configMap map[string]string) {
 		err9 != nil {
 		panic("Error parsing config values")
 	}
+
 	config.App_licenseKey.Set(configMap["app.licensekey"])
 	config.App_autoUpdate.Set(configMap["app.auto_update"] == "true")
 	config.App_debug.Set(configMap["app.debug"] == "true")
