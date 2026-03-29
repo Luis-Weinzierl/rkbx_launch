@@ -35,8 +35,6 @@ func newMainWindow(a fyne.App, config *helpers.BoundRkbxConfig) (fyne.Window, co
 				widgets.NewHeader("Configuration"),
 				widgets.NewSubheader("General"),
 				widgets.NewSelectEntry("Rekordbox Version", config.Keeper_rekordboxVersion, availVersions),
-				widgets.NewBoolConfig("Auto-Update", config.App_autoUpdate),
-				widget.NewCheckWithData("Debug Mode", config.App_debug),
 				widgets.NewBoolConfig("Keep non-master decks warm", config.Keeper_keepWarm),
 				widgets.NewEntrySlider("Update rate (Hz)", 10, 500, config.Keeper_updateRate),
 				widgets.NewEntrySlider("Slow Update every n-th", 5, 20, config.Keeper_slowUpdateEveryNth),

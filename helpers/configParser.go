@@ -14,12 +14,6 @@ import (
 type BoundRkbxConfig struct {
 	// ---------- General ----------
 	App_licenseKey binding.String
-	App_autoUpdate binding.Bool
-	App_debug      binding.Bool
-
-	// ---------- Live Display ----------
-	Display_enabled  binding.Bool
-	Display_interval binding.Float
 
 	// ---------- BeatKeeper ----------
 	Keeper_rekordboxVersion   binding.String
@@ -85,7 +79,6 @@ func (config *BoundRkbxConfig) IsEvaluation() bool {
 }
 
 func fillFromConfigMap(config *BoundRkbxConfig, configMap map[string]string) {
-	displayInterval, err0 := strconv.ParseFloat(configMap["display.interval"], 32)
 	keeperUpdateRate, err1 := strconv.Atoi(configMap["keeper.update_rate"])
 	keeperSlowUpdateEveryNth, err2 := strconv.Atoi(configMap["keeper.slow_update_every_nth"])
 	keeperDelayCompensation, err3 := strconv.Atoi(configMap["keeper.delay_compensation"])
@@ -101,8 +94,7 @@ func fillFromConfigMap(config *BoundRkbxConfig, configMap map[string]string) {
 	sacnTargetsParts := strings.Split(sacnTargetsStr, " ")
 	sacnTargets := binding.BindStringList(&sacnTargetsParts)
 
-	if err0 != nil ||
-		err1 != nil ||
+	if err1 != nil ||
 		err2 != nil ||
 		err3 != nil ||
 		err4 != nil ||
@@ -115,11 +107,6 @@ func fillFromConfigMap(config *BoundRkbxConfig, configMap map[string]string) {
 	}
 
 	config.App_licenseKey.Set(configMap["app.licensekey"])
-	config.App_autoUpdate.Set(configMap["app.auto_update"] == "true")
-	config.App_debug.Set(configMap["app.debug"] == "true")
-
-	config.Display_enabled.Set(configMap["display.enabled"] == "true")
-	config.Display_interval.Set(displayInterval)
 
 	config.Keeper_rekordboxVersion.Set(configMap["keeper.rekordbox_version"])
 	config.Keeper_updateRate.Set(keeperUpdateRate)
@@ -166,11 +153,6 @@ func fillFromConfigMap(config *BoundRkbxConfig, configMap map[string]string) {
 
 func convertToConfigMap(config *BoundRkbxConfig) map[string]string {
 	appLicenseKey, _ := config.App_licenseKey.Get()
-	appAutoUpdate, _ := config.App_autoUpdate.Get()
-	appDebug, _ := config.App_debug.Get()
-
-	displayEnabled, _ := config.Display_enabled.Get()
-	displayInterval, _ := config.Display_interval.Get()
 
 	keeperRekordboxVersion, _ := config.Keeper_rekordboxVersion.Get()
 	keeperUpdateRate, _ := config.Keeper_updateRate.Get()
@@ -211,11 +193,12 @@ func convertToConfigMap(config *BoundRkbxConfig) map[string]string {
 
 	return map[string]string{
 		"app.licensekey":  appLicenseKey,
-		"app.auto_update": fmt.Sprintf("%v", appAutoUpdate),
-		"app.debug":       fmt.Sprintf("%v", appDebug),
+		"app.auto_update": "true",
+		"app.debug":       "true",
+		"app.yesToAll":    "true",
 
-		"display.enabled":  fmt.Sprintf("%v", displayEnabled),
-		"display.interval": fmt.Sprintf("%d", displayInterval),
+		"display.enabled":  "true",
+		"display.interval": "1.0",
 
 		"keeper.rekordbox_version":     keeperRekordboxVersion,
 		"keeper.update_rate":           fmt.Sprintf("%d", keeperUpdateRate),
@@ -310,10 +293,6 @@ func StoreConfigFile(config *BoundRkbxConfig, filePath string) {
 func NewBoundRkbxConfig() BoundRkbxConfig {
 	return BoundRkbxConfig{
 		App_licenseKey:                   binding.NewString(),
-		App_autoUpdate:                   binding.NewBool(),
-		App_debug:                        binding.NewBool(),
-		Display_enabled:                  binding.NewBool(),
-		Display_interval:                 binding.NewFloat(),
 		Keeper_rekordboxVersion:          binding.NewString(),
 		Keeper_updateRate:                binding.NewInt(),
 		Keeper_slowUpdateEveryNth:        binding.NewInt(),
