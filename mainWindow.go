@@ -57,10 +57,12 @@ func newMainWindow(a fyne.App, config *helpers.BoundRkbxConfig) (fyne.Window, co
 
 	configuration.SetMinSize(fyne.Size{Width: 400, Height: 500})
 
-	runningDisplay := container.NewCenter(
-		widget.NewLabel("Stop rkbx_link to configure."),
-	)
+	runningDisplay := container.NewHScroll( // Hacky way to get a minsize-able container
+		container.NewCenter(
+			widget.NewLabel("Stop rkbx_link to configure."),
+		))
 
+	runningDisplay.SetMinSize(fyne.Size{Width: 400, Height: 500})
 	runningDisplay.Hide()
 
 	offLogo := widgets.NewLogoImage(resourceLinkLogoGrayPng)
@@ -83,6 +85,7 @@ func newMainWindow(a fyne.App, config *helpers.BoundRkbxConfig) (fyne.Window, co
 	saveButton := widget.NewButton("Save", func() { go helpers.StoreConfigFile(config, "./rkbx_link/config") })
 
 	runButton.OnTapped = func() {
+		fmt.Println(w.Canvas().Size())
 		if !running {
 			helpers.StoreConfigFile(config, "./rkbx_link/config")
 			cmd.Start()
@@ -130,11 +133,10 @@ func newMainWindow(a fyne.App, config *helpers.BoundRkbxConfig) (fyne.Window, co
 		),
 		nil,
 		nil,
-		container.NewCenter(
-			container.NewStack(
-				configuration,
-				runningDisplay,
-			)),
+		container.NewStack(
+			configuration,
+			runningDisplay,
+		),
 	)
 
 	w.SetCloseIntercept(func() {
