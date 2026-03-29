@@ -7,9 +7,9 @@ import (
 	"fyne.io/fyne/v2/container"
 )
 
-func NewAblOptions(config *helpers.RkbxConfig) *fyne.Container {
+func NewAblOptions(config *helpers.BoundRkbxConfig) *fyne.Container {
 	ablOptions := container.NewVBox(
-		NewEntrySliderF("Cumulative Error Tolerance", 0.01, 0.1, &config.Link_cumulativeErrorTolerance),
+		NewEntrySliderF("Cumulative Error Tolerance", 0.01, 0.1, config.Link_cumulativeErrorTolerance),
 	)
 	ablOptions.Hide()
 

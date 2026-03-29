@@ -7,10 +7,10 @@ import (
 	"fyne.io/fyne/v2/container"
 )
 
-func NewSetlistOptions(config *helpers.RkbxConfig) *fyne.Container {
+func NewSetlistOptions(config *helpers.BoundRkbxConfig) *fyne.Container {
 	setlistOptions := container.NewVBox(
-		NewFormEntry("Track Seperator", &config.Setlist_seperator),
-		NewFormEntry("Output Filename", &config.Setlist_filename),
+		NewFormEntry("Output Filename", config.Setlist_filename),
+		NewFormEntry("Track Seperator", config.Setlist_seperator),
 	)
 	setlistOptions.Hide()
 

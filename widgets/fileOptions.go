@@ -7,9 +7,9 @@ import (
 	"fyne.io/fyne/v2/container"
 )
 
-func NewFileOptions(config *helpers.RkbxConfig) *fyne.Container {
+func NewFileOptions(config *helpers.BoundRkbxConfig) *fyne.Container {
 	fileOptions := container.NewVBox(
-		NewFormEntry("Output Filename", &config.File_fileName),
+		NewFormEntry("Output Filename", config.File_fileName),
 	)
 	fileOptions.Hide()
 

@@ -7,65 +7,67 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"fyne.io/fyne/v2/data/binding"
 )
 
-type RkbxConfig struct {
+type BoundRkbxConfig struct {
 	// ---------- General ----------
-	App_licenseKey string
-	App_autoUpdate bool
-	App_debug      bool
+	App_licenseKey binding.String
+	App_autoUpdate binding.Bool
+	App_debug      binding.Bool
 
 	// ---------- BeatKeeper ----------
-	Keeper_rekordboxVersion   string
-	Keeper_updateRate         int
-	Keeper_slowUpdateEveryNth int
-	Keeper_delayCompensation  int
-	Keeper_keepWarm           bool
-	Keeper_decks              int
+	Keeper_rekordboxVersion   binding.String
+	Keeper_updateRate         binding.Int
+	Keeper_slowUpdateEveryNth binding.Int
+	Keeper_delayCompensation  binding.Int
+	Keeper_keepWarm           binding.Bool
+	Keeper_decks              binding.Int
 
 	// ---------- Ableton Link ----------
-	Link_enabled                  bool
-	Link_cumulativeErrorTolerance float64
+	Link_enabled                  binding.Bool
+	Link_cumulativeErrorTolerance binding.Float
 
 	// ---------- OSC ----------
-	Osc_enabled            bool
+	Osc_enabled            binding.Bool
 	Osc_source             IPAddress
 	Osc_destination        IPAddress
-	Osc_sendEveryNth       int
-	Osc_phraseOutputFormat string
+	Osc_sendEveryNth       binding.Int
+	Osc_phraseOutputFormat binding.String
 
-	Osc_msg_beatMaster      bool
-	Osc_msg_beatMaster_div1 bool
-	Osc_msg_beatMaster_div2 bool
-	Osc_msg_beatMaster_div4 bool
-	Osc_msg_timeMaster      bool
-	Osc_msg_phraseMaster    bool
+	Osc_msg_beatMaster      binding.Bool
+	Osc_msg_beatMaster_div1 binding.Bool
+	Osc_msg_beatMaster_div2 binding.Bool
+	Osc_msg_beatMaster_div4 binding.Bool
+	Osc_msg_timeMaster      binding.Bool
+	Osc_msg_phraseMaster    binding.Bool
 
-	Osc_msg_beat      bool
-	Osc_msg_beat_div1 bool
-	Osc_msg_beat_div2 bool
-	Osc_msg_beat_div4 bool
-	Osc_msg_time      bool
-	Osc_msg_phrase    bool
+	Osc_msg_beat      binding.Bool
+	Osc_msg_beat_div1 binding.Bool
+	Osc_msg_beat_div2 binding.Bool
+	Osc_msg_beat_div4 binding.Bool
+	Osc_msg_time      binding.Bool
+	Osc_msg_phrase    binding.Bool
 
 	// ---------- File ----------
-	File_enabled  bool
-	File_fileName string
+	File_enabled  binding.Bool
+	File_fileName binding.String
 
 	// ---------- Setlist Logging ----------
-	Setlist_enabled   bool
-	Setlist_seperator string
-	Setlist_filename  string
+	Setlist_enabled   binding.Bool
+	Setlist_seperator binding.String
+	Setlist_filename  binding.String
 
 	// ---------- sACN ----------
-	Sacn_enabled      bool
+	Sacn_enabled      binding.Bool
 	Sacn_source       IPAddress
 	Sacn_targets      []IPAddress
-	Sacn_priority     int
-	Sacn_universe     int
-	Sacn_startChannel int
-	Sacn_mode         string
-	Sacn_sourceName   string
+	Sacn_priority     binding.Int
+	Sacn_universe     binding.Int
+	Sacn_startChannel binding.Int
+	Sacn_mode         binding.String
+	Sacn_sourceName   binding.String
 }
 
 type configEntry struct {
@@ -73,7 +75,7 @@ type configEntry struct {
 	value string
 }
 
-func convertFromConfigMap(configMap map[string]string) RkbxConfig {
+func convertFromConfigMap(configMap map[string]string) BoundRkbxConfig {
 	keeperUpdateRate, err1 := strconv.Atoi(configMap["keeper.update_rate"])
 	keeperSlowUpdateEveryNth, err2 := strconv.Atoi(configMap["keeper.slow_update_every_nth"])
 	keeperDelayCompensation, err3 := strconv.Atoi(configMap["keeper.delay_compensation"])
@@ -115,114 +117,312 @@ func convertFromConfigMap(configMap map[string]string) RkbxConfig {
 		panic("Error parsing config values")
 	}
 
-	return RkbxConfig{
-		App_licenseKey: configMap["app.licensekey"],
-		App_autoUpdate: configMap["app.auto_update"] == "true",
-		App_debug:      configMap["app.debug"] == "true",
+	applicensekey := configMap["app.licensekey"]
+	appauto_update := configMap["app.auto_update"] == "true"
+	appdebug := configMap["app.debug"] == "true"
+	keeperrekordbox_version := configMap["keeper.rekordbox_version"]
+	keeperkeep_warm := configMap["keeper.keep_warm"] == "true"
+	linkenabled := configMap["link.enabled"] == "true"
+	oscenabled := configMap["osc.enabled"] == "true"
+	oscphrase_output_format := configMap["osc.phrase_output_format"]
+	oscmsgbeat_master := configMap["osc.msg.beat_master"] == "true"
+	oscmsgbeat_masterdiv_1 := configMap["osc.msg.beat_master.div_1"] == "true"
+	oscmsgbeat_masterdiv_2 := configMap["osc.msg.beat_master.div_2"] == "true"
+	oscmsgbeat_masterdiv_4 := configMap["osc.msg.beat_master.div_4"] == "true"
+	oscmsgtime_master := configMap["osc.msg.time_master"] == "true"
+	oscmsgphrase_master := configMap["osc.msg.phrase_master"] == "true"
+	oscmsgbeat := configMap["osc.msg.beat"] == "true"
+	oscmsgbeatdiv_1 := configMap["osc.msg.beat.div_1"] == "true"
+	oscmsgbeatdiv_2 := configMap["osc.msg.beat.div_2"] == "true"
+	oscmsgbeatdiv_4 := configMap["osc.msg.beat.div_4"] == "true"
+	oscmsgtime := configMap["osc.msg.time"] == "true"
+	oscmsgphrase := configMap["osc.msg.phrase"] == "true"
+	fileenabled := configMap["file.enabled"] == "true"
+	filefilename := configMap["file.filename"]
+	setlistenabled := configMap["setlist.enabled"] == "true"
+	setlistseparator := configMap["setlist.separator"]
+	setlistfilename := configMap["setlist.filename"]
+	sacnenabled := configMap["sacn.enabled"] == "true"
+	sacnmode := configMap["sacn.mode"]
+	sacnsource_name := configMap["sacn.source_name"]
 
-		Keeper_rekordboxVersion:   configMap["keeper.rekordbox_version"],
-		Keeper_updateRate:         keeperUpdateRate,
-		Keeper_slowUpdateEveryNth: keeperSlowUpdateEveryNth,
-		Keeper_delayCompensation:  keeperDelayCompensation,
-		Keeper_keepWarm:           configMap["keeper.keep_warm"] == "true",
-		Keeper_decks:              keeperDecks,
+	return BoundRkbxConfig{
+		App_licenseKey: binding.BindString(&applicensekey),
+		App_autoUpdate: binding.BindBool(&appauto_update),
+		App_debug:      binding.BindBool(&appdebug),
 
-		Link_enabled:                  configMap["link.enabled"] == "true",
-		Link_cumulativeErrorTolerance: linkCumulativeErrorTolerance,
+		Keeper_rekordboxVersion:   binding.BindString(&keeperrekordbox_version),
+		Keeper_updateRate:         binding.BindInt(&keeperUpdateRate),
+		Keeper_slowUpdateEveryNth: binding.BindInt(&keeperSlowUpdateEveryNth),
+		Keeper_delayCompensation:  binding.BindInt(&keeperDelayCompensation),
+		Keeper_keepWarm:           binding.BindBool(&keeperkeep_warm),
+		Keeper_decks:              binding.BindInt(&keeperDecks),
 
-		Osc_enabled:            configMap["osc.enabled"] == "true",
+		Link_enabled:                  binding.BindBool(&linkenabled),
+		Link_cumulativeErrorTolerance: binding.BindFloat(&linkCumulativeErrorTolerance),
+
+		Osc_enabled:            binding.BindBool(&oscenabled),
 		Osc_source:             oscSource,
 		Osc_destination:        oscDestination,
-		Osc_sendEveryNth:       oscSendEveryNth,
-		Osc_phraseOutputFormat: configMap["osc.phrase_output_format"],
+		Osc_sendEveryNth:       binding.BindInt(&oscSendEveryNth),
+		Osc_phraseOutputFormat: binding.BindString(&oscphrase_output_format),
 
-		Osc_msg_beatMaster:      configMap["osc.msg.beat_master"] == "true",
-		Osc_msg_beatMaster_div1: configMap["osc.msg.beat_master.div_1"] == "true",
-		Osc_msg_beatMaster_div2: configMap["osc.msg.beat_master.div_2"] == "true",
-		Osc_msg_beatMaster_div4: configMap["osc.msg.beat_master.div_4"] == "true",
-		Osc_msg_timeMaster:      configMap["osc.msg.time_master"] == "true",
-		Osc_msg_phraseMaster:    configMap["osc.msg.phrase_master"] == "true",
+		Osc_msg_beatMaster:      binding.BindBool(&oscmsgbeat_master),
+		Osc_msg_beatMaster_div1: binding.BindBool(&oscmsgbeat_masterdiv_1),
+		Osc_msg_beatMaster_div2: binding.BindBool(&oscmsgbeat_masterdiv_2),
+		Osc_msg_beatMaster_div4: binding.BindBool(&oscmsgbeat_masterdiv_4),
+		Osc_msg_timeMaster:      binding.BindBool(&oscmsgtime_master),
+		Osc_msg_phraseMaster:    binding.BindBool(&oscmsgphrase_master),
 
-		Osc_msg_beat:      configMap["osc.msg.beat"] == "true",
-		Osc_msg_beat_div1: configMap["osc.msg.beat.div_1"] == "true",
-		Osc_msg_beat_div2: configMap["osc.msg.beat.div_2"] == "true",
-		Osc_msg_beat_div4: configMap["osc.msg.beat.div_4"] == "true",
-		Osc_msg_time:      configMap["osc.msg.time"] == "true",
-		Osc_msg_phrase:    configMap["osc.msg.phrase"] == "true",
+		Osc_msg_beat:      binding.BindBool(&oscmsgbeat),
+		Osc_msg_beat_div1: binding.BindBool(&oscmsgbeatdiv_1),
+		Osc_msg_beat_div2: binding.BindBool(&oscmsgbeatdiv_2),
+		Osc_msg_beat_div4: binding.BindBool(&oscmsgbeatdiv_4),
+		Osc_msg_time:      binding.BindBool(&oscmsgtime),
+		Osc_msg_phrase:    binding.BindBool(&oscmsgphrase),
 
-		File_enabled:  configMap["file.enabled"] == "true",
-		File_fileName: configMap["file.filename"],
+		File_enabled:  binding.BindBool(&fileenabled),
+		File_fileName: binding.BindString(&filefilename),
 
-		Setlist_enabled:   configMap["setlist.enabled"] == "true",
-		Setlist_seperator: configMap["setlist.separator"],
-		Setlist_filename:  configMap["setlist.filename"],
+		Setlist_enabled:   binding.BindBool(&setlistenabled),
+		Setlist_seperator: binding.BindString(&setlistseparator),
+		Setlist_filename:  binding.BindString(&setlistfilename),
 
-		Sacn_enabled:      configMap["sacn.enabled"] == "true",
+		Sacn_enabled:      binding.BindBool(&sacnenabled),
 		Sacn_source:       sacnSource,
 		Sacn_targets:      sacnTargets,
-		Sacn_priority:     sacnPriority,
-		Sacn_universe:     sacnUniverse,
-		Sacn_startChannel: sacnStartChannel,
-		Sacn_mode:         configMap["sacn.mode"],
-		Sacn_sourceName:   configMap["sacn.source_name"],
+		Sacn_priority:     binding.BindInt(&sacnPriority),
+		Sacn_universe:     binding.BindInt(&sacnUniverse),
+		Sacn_startChannel: binding.BindInt(&sacnStartChannel),
+		Sacn_mode:         binding.BindString(&sacnmode),
+		Sacn_sourceName:   binding.BindString(&sacnsource_name),
 	}
 }
 
-func convertToConfigMap(config RkbxConfig) map[string]string {
+func fillFromConfigMap(config *BoundRkbxConfig, configMap map[string]string) {
+	keeperUpdateRate, err1 := strconv.Atoi(configMap["keeper.update_rate"])
+	keeperSlowUpdateEveryNth, err2 := strconv.Atoi(configMap["keeper.slow_update_every_nth"])
+	keeperDelayCompensation, err3 := strconv.Atoi(configMap["keeper.delay_compensation"])
+	keeperDecks, err4 := strconv.Atoi(configMap["keeper.decks"])
+	oscSendEveryNth, err5 := strconv.Atoi(configMap["osc.send_every_nth"])
+	sacnPriority, err6 := strconv.Atoi(configMap["sacn.priority"])
+	sacnUniverse, err7 := strconv.Atoi(configMap["sacn.universe"])
+	sacnStartChannel, err8 := strconv.Atoi(configMap["sacn.start_channel"])
+
+	linkCumulativeErrorTolerance, err9 := strconv.ParseFloat(configMap["link.cumulative_error_tolerance"], 32)
+
+	oscSource, err10 := parseIPAddress(configMap["osc.source"])
+	oscDestination, err11 := parseIPAddress(configMap["osc.destination"])
+
+	sacnSource, err12 := parseIPAddress(configMap["sacn.source"])
+	sacnTargetsStr := configMap["sacn.targets"]
+	sacnTargetsParts := strings.Split(sacnTargetsStr, " ")
+	sacnTargets := make([]IPAddress, len(sacnTargetsParts))
+	for i, targetStr := range sacnTargetsParts {
+		target, err := parseIPAddress(targetStr)
+		if err != nil {
+			panic("Error parsing config values")
+		}
+		sacnTargets[i] = target
+	}
+
+	if err1 != nil ||
+		err2 != nil ||
+		err3 != nil ||
+		err4 != nil ||
+		err5 != nil ||
+		err6 != nil ||
+		err7 != nil ||
+		err8 != nil ||
+		err9 != nil ||
+		err10 != nil ||
+		err11 != nil ||
+		err12 != nil {
+		panic("Error parsing config values")
+	}
+	config.App_licenseKey.Set(configMap["app.licensekey"])
+	config.App_autoUpdate.Set(configMap["app.auto_update"] == "true")
+	config.App_debug.Set(configMap["app.debug"] == "true")
+
+	config.Keeper_rekordboxVersion.Set(configMap["keeper.rekordbox_version"])
+	config.Keeper_updateRate.Set(keeperUpdateRate)
+	config.Keeper_slowUpdateEveryNth.Set(keeperSlowUpdateEveryNth)
+	config.Keeper_delayCompensation.Set(keeperDelayCompensation)
+	config.Keeper_keepWarm.Set(configMap["keeper.keep_warm"] == "true")
+	config.Keeper_decks.Set(keeperDecks)
+
+	config.Link_enabled.Set(configMap["link.enabled"] == "true")
+	config.Link_cumulativeErrorTolerance.Set(linkCumulativeErrorTolerance)
+
+	config.Osc_enabled.Set(configMap["osc.enabled"] == "true")
+	config.Osc_source = oscSource
+	config.Osc_destination = oscDestination
+	config.Osc_sendEveryNth.Set(oscSendEveryNth)
+	config.Osc_phraseOutputFormat.Set(configMap["osc.phrase_output_format"])
+
+	config.Osc_msg_beatMaster.Set(configMap["osc.msg.beat_master"] == "true")
+	config.Osc_msg_beatMaster_div1.Set(configMap["osc.msg.beat_master.div_1"] == "true")
+	config.Osc_msg_beatMaster_div2.Set(configMap["osc.msg.beat_master.div_2"] == "true")
+	config.Osc_msg_beatMaster_div4.Set(configMap["osc.msg.beat_master.div_4"] == "true")
+	config.Osc_msg_timeMaster.Set(configMap["osc.msg.time_master"] == "true")
+	config.Osc_msg_phraseMaster.Set(configMap["osc.msg.phrase_master"] == "true")
+
+	config.Osc_msg_beat.Set(configMap["osc.msg.beat"] == "true")
+	config.Osc_msg_beat_div1.Set(configMap["osc.msg.beat.div_1"] == "true")
+	config.Osc_msg_beat_div2.Set(configMap["osc.msg.beat.div_2"] == "true")
+	config.Osc_msg_beat_div4.Set(configMap["osc.msg.beat.div_4"] == "true")
+	config.Osc_msg_time.Set(configMap["osc.msg.time"] == "true")
+	config.Osc_msg_phrase.Set(configMap["osc.msg.phrase"] == "true")
+
+	config.File_enabled.Set(configMap["file.enabled"] == "true")
+	config.File_fileName.Set(configMap["file.filename"])
+
+	config.Setlist_enabled.Set(configMap["setlist.enabled"] == "true")
+	config.Setlist_seperator.Set(configMap["setlist.separator"])
+	config.Setlist_filename.Set(configMap["setlist.filename"])
+
+	config.Sacn_enabled.Set(configMap["sacn.enabled"] == "true")
+	config.Sacn_source = sacnSource
+	config.Sacn_targets = sacnTargets
+	config.Sacn_priority.Set(sacnPriority)
+	config.Sacn_universe.Set(sacnUniverse)
+	config.Sacn_startChannel.Set(sacnStartChannel)
+	config.Sacn_mode.Set(configMap["sacn.mode"])
+	config.Sacn_sourceName.Set(configMap["sacn.source_name"])
+}
+
+func convertToConfigMap(config *BoundRkbxConfig) map[string]string {
+	appLicenseKey, _ := config.App_licenseKey.Get()
+	appAutoUpdate, _ := config.App_autoUpdate.Get()
+	appDebug, _ := config.App_debug.Get()
+
+	keeperRekordboxVersion, _ := config.Keeper_rekordboxVersion.Get()
+	keeperUpdateRate, _ := config.Keeper_updateRate.Get()
+	keeperSlowUpdateEveryNth, _ := config.Keeper_slowUpdateEveryNth.Get()
+	keeperDelayCompensation, _ := config.Keeper_delayCompensation.Get()
+	keeperKeepWarm, _ := config.Keeper_keepWarm.Get()
+	keeperDecks, _ := config.Keeper_decks.Get()
+
+	linkEnabled, _ := config.Link_enabled.Get()
+	linkCumulativeErrorTolerance, _ := config.Link_cumulativeErrorTolerance.Get()
+
+	oscEnabled, _ := config.Osc_enabled.Get()
+	oscSendEveryNth, _ := config.Osc_sendEveryNth.Get()
+	oscPhraseOutputFormat, _ := config.Osc_phraseOutputFormat.Get()
+
+	oscMsgBeatMaster, _ := config.Osc_msg_beatMaster.Get()
+	oscMsgBeatMasterDiv1, _ := config.Osc_msg_beatMaster_div1.Get()
+	oscMsgBeatMasterDiv2, _ := config.Osc_msg_beatMaster_div2.Get()
+	oscMsgBeatMasterDiv4, _ := config.Osc_msg_beatMaster_div4.Get()
+	oscMsgTimeMaster, _ := config.Osc_msg_timeMaster.Get()
+	oscMsgPhraseMaster, _ := config.Osc_msg_phraseMaster.Get()
+
+	oscMsgBeat, _ := config.Osc_msg_beat.Get()
+	oscMsgBeatDiv1, _ := config.Osc_msg_beat_div1.Get()
+	oscMsgBeatDiv2, _ := config.Osc_msg_beat_div2.Get()
+	oscMsgBeatDiv4, _ := config.Osc_msg_beat_div4.Get()
+	oscMsgTime, _ := config.Osc_msg_time.Get()
+	oscMsgPhrase, _ := config.Osc_msg_phrase.Get()
+
+	fileEnabled, _ := config.File_enabled.Get()
+	fileFileName, _ := config.File_fileName.Get()
+
+	setlistEnabled, _ := config.Setlist_enabled.Get()
+	setlistSeparator, _ := config.Setlist_seperator.Get()
+	setlistFilename, _ := config.Setlist_filename.Get()
+
+	sacnEnabled, _ := config.Sacn_enabled.Get()
+	sacnPriority, _ := config.Sacn_priority.Get()
+	sacnUniverse, _ := config.Sacn_universe.Get()
+	sacnStartChannel, _ := config.Sacn_startChannel.Get()
+	sacnMode, _ := config.Sacn_mode.Get()
+	sacnSourceName, _ := config.Sacn_sourceName.Get()
+
 	return map[string]string{
-		"app.licensekey":  config.App_licenseKey,
-		"app.auto_update": fmt.Sprintf("%v", config.App_autoUpdate),
-		"app.debug":       fmt.Sprintf("%v", config.App_debug),
+		"app.licensekey":  appLicenseKey,
+		"app.auto_update": fmt.Sprintf("%v", appAutoUpdate),
+		"app.debug":       fmt.Sprintf("%v", appDebug),
 
-		"keeper.rekordbox_version":     config.Keeper_rekordboxVersion,
-		"keeper.update_rate":           fmt.Sprintf("%d", config.Keeper_updateRate),
-		"keeper.slow_update_every_nth": fmt.Sprintf("%d", config.Keeper_slowUpdateEveryNth),
-		"keeper.delay_compensation":    fmt.Sprintf("%d", config.Keeper_delayCompensation),
-		"keeper.keep_warm":             fmt.Sprintf("%v", config.Keeper_keepWarm),
-		"keeper.decks":                 fmt.Sprintf("%d", config.Keeper_decks),
+		"keeper.rekordbox_version":     keeperRekordboxVersion,
+		"keeper.update_rate":           fmt.Sprintf("%d", keeperUpdateRate),
+		"keeper.slow_update_every_nth": fmt.Sprintf("%d", keeperSlowUpdateEveryNth),
+		"keeper.delay_compensation":    fmt.Sprintf("%d", keeperDelayCompensation),
+		"keeper.keep_warm":             fmt.Sprintf("%v", keeperKeepWarm),
+		"keeper.decks":                 fmt.Sprintf("%d", keeperDecks),
 
-		"link.enabled":                    fmt.Sprintf("%v", config.Link_enabled),
-		"link.cumulative_error_tolerance": fmt.Sprintf("%f", config.Link_cumulativeErrorTolerance),
+		"link.enabled":                    fmt.Sprintf("%v", linkEnabled),
+		"link.cumulative_error_tolerance": fmt.Sprintf("%f", linkCumulativeErrorTolerance),
 
-		"osc.enabled":              fmt.Sprintf("%v", config.Osc_enabled),
+		"osc.enabled":              fmt.Sprintf("%v", oscEnabled),
 		"osc.source":               config.Osc_source.String(),
 		"osc.destination":          config.Osc_destination.String(),
-		"osc.send_every_nth":       fmt.Sprintf("%d", config.Osc_sendEveryNth),
-		"osc.phrase_output_format": config.Osc_phraseOutputFormat,
+		"osc.send_every_nth":       fmt.Sprintf("%d", oscSendEveryNth),
+		"osc.phrase_output_format": oscPhraseOutputFormat,
 
-		"osc.msg.beat_master":       fmt.Sprintf("%v", config.Osc_msg_beatMaster),
-		"osc.msg.beat_master.div_1": fmt.Sprintf("%v", config.Osc_msg_beatMaster_div1),
-		"osc.msg.beat_master.div_2": fmt.Sprintf("%v", config.Osc_msg_beatMaster_div2),
-		"osc.msg.beat_master.div_4": fmt.Sprintf("%v", config.Osc_msg_beatMaster_div4),
-		"osc.msg.time_master":       fmt.Sprintf("%v", config.Osc_msg_timeMaster),
-		"osc.msg.phrase_master":     fmt.Sprintf("%v", config.Osc_msg_phraseMaster),
+		"osc.msg.beat_master":       fmt.Sprintf("%v", oscMsgBeatMaster),
+		"osc.msg.beat_master.div_1": fmt.Sprintf("%v", oscMsgBeatMasterDiv1),
+		"osc.msg.beat_master.div_2": fmt.Sprintf("%v", oscMsgBeatMasterDiv2),
+		"osc.msg.beat_master.div_4": fmt.Sprintf("%v", oscMsgBeatMasterDiv4),
+		"osc.msg.time_master":       fmt.Sprintf("%v", oscMsgTimeMaster),
+		"osc.msg.phrase_master":     fmt.Sprintf("%v", oscMsgPhraseMaster),
 
-		"osc.msg.beat":       fmt.Sprintf("%v", config.Osc_msg_beat),
-		"osc.msg.beat.div_1": fmt.Sprintf("%v", config.Osc_msg_beat_div1),
-		"osc.msg.beat.div_2": fmt.Sprintf("%v", config.Osc_msg_beat_div2),
-		"osc.msg.beat.div_4": fmt.Sprintf("%v", config.Osc_msg_beat_div4),
-		"osc.msg.time":       fmt.Sprintf("%v", config.Osc_msg_time),
-		"osc.msg.phrase":     fmt.Sprintf("%v", config.Osc_msg_phrase),
+		"osc.msg.beat":       fmt.Sprintf("%v", oscMsgBeat),
+		"osc.msg.beat.div_1": fmt.Sprintf("%v", oscMsgBeatDiv1),
+		"osc.msg.beat.div_2": fmt.Sprintf("%v", oscMsgBeatDiv2),
+		"osc.msg.beat.div_4": fmt.Sprintf("%v", oscMsgBeatDiv4),
+		"osc.msg.time":       fmt.Sprintf("%v", oscMsgTime),
+		"osc.msg.phrase":     fmt.Sprintf("%v", oscMsgPhrase),
 
-		"file.enabled":  fmt.Sprintf("%v", config.File_enabled),
-		"file.filename": config.File_fileName,
+		"file.enabled":  fmt.Sprintf("%v", fileEnabled),
+		"file.filename": fileFileName,
 
-		"setlist.enabled":   fmt.Sprintf("%v", config.Setlist_enabled),
-		"setlist.separator": config.Setlist_seperator,
-		"setlist.filename":  config.Setlist_filename,
+		"setlist.enabled":   fmt.Sprintf("%v", setlistEnabled),
+		"setlist.separator": setlistSeparator,
+		"setlist.filename":  setlistFilename,
 
-		"sacn.enabled":       fmt.Sprintf("%v", config.Sacn_enabled),
+		"sacn.enabled":       fmt.Sprintf("%v", sacnEnabled),
 		"sacn.source":        config.Sacn_source.String(),
 		"sacn.targets":       IPsToString(config.Sacn_targets),
-		"sacn.priority":      fmt.Sprintf("%d", config.Sacn_priority),
-		"sacn.universe":      fmt.Sprintf("%d", config.Sacn_universe),
-		"sacn.start_channel": fmt.Sprintf("%d", config.Sacn_startChannel),
-		"sacn.mode":          config.Sacn_mode,
-		"sacn.source_name":   config.Sacn_sourceName,
+		"sacn.priority":      fmt.Sprintf("%d", sacnPriority),
+		"sacn.universe":      fmt.Sprintf("%d", sacnUniverse),
+		"sacn.start_channel": fmt.Sprintf("%d", sacnStartChannel),
+		"sacn.mode":          sacnMode,
+		"sacn.source_name":   sacnSourceName,
 	}
 }
 
-func ParseConfigFile(filePath string) RkbxConfig {
+func ParseConfigFile(filePath string, out *BoundRkbxConfig) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+
+	configMap := make(map[string]string)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		if strings.TrimSpace(line) == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		parts := strings.SplitN(line, " ", 2)
+		if len(parts) == 2 {
+			configMap[parts[0]] = strings.TrimSpace(parts[1])
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	fillFromConfigMap(out, configMap)
+}
+
+func LoadConfigFile(filePath string) BoundRkbxConfig {
 	file, err := os.Open(filePath)
 	if err != nil {
 		log.Fatal(err)
@@ -253,7 +453,7 @@ func ParseConfigFile(filePath string) RkbxConfig {
 	return convertFromConfigMap(configMap)
 }
 
-func StoreConfigFile(config RkbxConfig, filePath string) {
+func StoreConfigFile(config *BoundRkbxConfig, filePath string) {
 	lines := "# This file is auto-generated. Manual changes will be overwritten.\n\n"
 
 	for key, value := range convertToConfigMap(config) {
@@ -264,11 +464,11 @@ func StoreConfigFile(config RkbxConfig, filePath string) {
 }
 
 type IPAddress struct {
-	Layer1 uint8
-	Layer2 uint8
-	Layer3 uint8
-	Layer4 uint8
-	Port   uint16
+	Layer1 int
+	Layer2 int
+	Layer3 int
+	Layer4 int
+	Port   int
 }
 
 func (ip IPAddress) String() string {
@@ -306,10 +506,10 @@ func parseIPAddress(ipString string) (IPAddress, error) {
 	}
 
 	return IPAddress{
-		Layer1: uint8(layer1),
-		Layer2: uint8(layer2),
-		Layer3: uint8(layer3),
-		Layer4: uint8(layer4),
-		Port:   uint16(port),
+		Layer1: layer1,
+		Layer2: layer2,
+		Layer3: layer3,
+		Layer4: layer4,
+		Port:   port,
 	}, nil
 }

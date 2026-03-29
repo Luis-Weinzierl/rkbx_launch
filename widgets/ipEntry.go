@@ -2,31 +2,36 @@ package widgets
 
 import (
 	"com/rkbx_launch/helpers"
-	"fmt"
 	"strconv"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
 
 func NewIPEntry(label string, configEntry *helpers.IPAddress) *fyne.Container {
-	layer1Entry := widget.NewEntry()
-	layer1Entry.SetText(fmt.Sprintf("%d", configEntry.Layer1))
+	layer1Binding := binding.BindInt(&configEntry.Layer1)
+	layer1BindingS := binding.IntToString(layer1Binding)
+	layer1Entry := widget.NewEntryWithData(layer1BindingS)
 
-	layer2Entry := widget.NewEntry()
-	layer2Entry.SetText(fmt.Sprintf("%d", configEntry.Layer2))
+	layer2Binding := binding.BindInt(&configEntry.Layer2)
+	layer2BindingS := binding.IntToString(layer2Binding)
+	layer2Entry := widget.NewEntryWithData(layer2BindingS)
 
-	layer3Entry := widget.NewEntry()
-	layer3Entry.SetText(fmt.Sprintf("%d", configEntry.Layer3))
+	layer3Binding := binding.BindInt(&configEntry.Layer3)
+	layer3BindingS := binding.IntToString(layer3Binding)
+	layer3Entry := widget.NewEntryWithData(layer3BindingS)
 
-	layer4Entry := widget.NewEntry()
-	layer4Entry.SetText(fmt.Sprintf("%d", configEntry.Layer4))
+	layer4Binding := binding.BindInt(&configEntry.Layer4)
+	layer4BindingS := binding.IntToString(layer4Binding)
+	layer4Entry := widget.NewEntryWithData(layer4BindingS)
 
-	portEntry := widget.NewEntry()
-	portEntry.SetText(fmt.Sprintf("%d", configEntry.Port))
+	portBinding := binding.BindInt(&configEntry.Port)
+	portBindingS := binding.IntToString(portBinding)
+	portEntry := widget.NewEntryWithData(portBindingS)
 
 	invalidityLabel := canvas.NewText("IP Address is invalid", fyne.CurrentApp().Settings().Theme().Color(theme.ColorNameForegroundOnError, 0))
 	invalidityLabel.Hide()
@@ -62,17 +67,21 @@ func NewIPEntry(label string, configEntry *helpers.IPAddress) *fyne.Container {
 }
 
 func NewIPOnlyEntry(label string, configEntry *helpers.IPAddress) *fyne.Container {
-	layer1Entry := widget.NewEntry()
-	layer1Entry.SetText(fmt.Sprintf("%d", configEntry.Layer1))
+	layer1Binding := binding.BindInt(&configEntry.Layer1)
+	layer1BindingS := binding.IntToString(layer1Binding)
+	layer1Entry := widget.NewEntryWithData(layer1BindingS)
 
-	layer2Entry := widget.NewEntry()
-	layer2Entry.SetText(fmt.Sprintf("%d", configEntry.Layer2))
+	layer2Binding := binding.BindInt(&configEntry.Layer2)
+	layer2BindingS := binding.IntToString(layer2Binding)
+	layer2Entry := widget.NewEntryWithData(layer2BindingS)
 
-	layer3Entry := widget.NewEntry()
-	layer3Entry.SetText(fmt.Sprintf("%d", configEntry.Layer3))
+	layer3Binding := binding.BindInt(&configEntry.Layer3)
+	layer3BindingS := binding.IntToString(layer3Binding)
+	layer3Entry := widget.NewEntryWithData(layer3BindingS)
 
-	layer4Entry := widget.NewEntry()
-	layer4Entry.SetText(fmt.Sprintf("%d", configEntry.Layer4))
+	layer4Binding := binding.BindInt(&configEntry.Layer4)
+	layer4BindingS := binding.IntToString(layer4Binding)
+	layer4Entry := widget.NewEntryWithData(layer4BindingS)
 
 	invalidityLabel := canvas.NewText("IP Address is invalid", fyne.CurrentApp().Settings().Theme().Color(theme.ColorNameForegroundOnError, 0))
 	invalidityLabel.Hide()
@@ -107,30 +116,6 @@ func NewIPOnlyEntry(label string, configEntry *helpers.IPAddress) *fyne.Containe
 	)
 }
 
-func tryParseUint8(s string) (uint8, error) {
-	val, err := strconv.Atoi(s)
-
-	if err != nil {
-		return 0, err
-	} else if val > 255 || val < 0 {
-		return 0, fmt.Errorf("Value %d is outside of [0;255]", val)
-	}
-
-	return uint8(val), nil
-}
-
-func tryParseUint16(s string) (uint16, error) {
-	val, err := strconv.Atoi(s)
-
-	if err != nil {
-		return 0, err
-	} else if val > 65535 || val < 0 {
-		return 0, fmt.Errorf("Value %d is outside of [0;65535]", val)
-	}
-
-	return uint16(val), nil
-}
-
 func changedCallback(
 	layer1Entry *widget.Entry,
 	layer2Entry *widget.Entry,
@@ -140,11 +125,11 @@ func changedCallback(
 	invalidityLabel *canvas.Text,
 	ip *helpers.IPAddress,
 ) {
-	layer1, err1 := tryParseUint8(layer1Entry.Text)
-	layer2, err2 := tryParseUint8(layer2Entry.Text)
-	layer3, err3 := tryParseUint8(layer3Entry.Text)
-	layer4, err4 := tryParseUint8(layer4Entry.Text)
-	port, err5 := tryParseUint16(portEntry.Text)
+	layer1, err1 := strconv.Atoi(layer1Entry.Text)
+	layer2, err2 := strconv.Atoi(layer2Entry.Text)
+	layer3, err3 := strconv.Atoi(layer3Entry.Text)
+	layer4, err4 := strconv.Atoi(layer4Entry.Text)
+	port, err5 := strconv.Atoi(portEntry.Text)
 
 	if err1 != nil ||
 		err2 != nil ||
@@ -171,10 +156,10 @@ func changedCallbackIpOnly(
 	invalidityLabel *canvas.Text,
 	ip *helpers.IPAddress,
 ) {
-	layer1, err1 := tryParseUint8(layer1Entry.Text)
-	layer2, err2 := tryParseUint8(layer2Entry.Text)
-	layer3, err3 := tryParseUint8(layer3Entry.Text)
-	layer4, err4 := tryParseUint8(layer4Entry.Text)
+	layer1, err1 := strconv.Atoi(layer1Entry.Text)
+	layer2, err2 := strconv.Atoi(layer2Entry.Text)
+	layer3, err3 := strconv.Atoi(layer3Entry.Text)
+	layer4, err4 := strconv.Atoi(layer4Entry.Text)
 
 	if err1 != nil ||
 		err2 != nil ||
