@@ -9,7 +9,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func newLicenseWindow(a *fyne.App, registeredCallback func(string), cancelledCallback func()) fyne.Window {
+func NewLicenseWindow(a *fyne.App, registeredCallback func(string), cancelledCallback func()) fyne.Window {
 	licenseWindow := (*a).NewWindow("Register rkbx_link")
 
 	licenseValidator := validation.NewRegexp("([A-Z0-9]{8}-){3}[A-Z0-9]{8}", "Invalid License Key Format.")

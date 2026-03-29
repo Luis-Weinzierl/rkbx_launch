@@ -146,6 +146,11 @@ func newMainWindow(a fyne.App, config *helpers.BoundRkbxConfig) (fyne.Window, co
 			)),
 	)
 
+	w.SetCloseIntercept(func() {
+		w.Hide()
+		a.Quit()
+	})
+
 	w.SetContent(vbox)
 
 	return w, cancel

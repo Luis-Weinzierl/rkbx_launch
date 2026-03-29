@@ -70,6 +70,13 @@ type BoundRkbxConfig struct {
 	Sacn_sourceName   binding.String
 }
 
+func (config *BoundRkbxConfig) IsEvaluation() bool {
+	if val, err := config.App_licenseKey.Get(); err == nil {
+		return val == "evaluation" || val == ""
+	}
+	return false
+}
+
 func fillFromConfigMap(config *BoundRkbxConfig, configMap map[string]string) {
 	keeperUpdateRate, err1 := strconv.Atoi(configMap["keeper.update_rate"])
 	keeperSlowUpdateEveryNth, err2 := strconv.Atoi(configMap["keeper.slow_update_every_nth"])

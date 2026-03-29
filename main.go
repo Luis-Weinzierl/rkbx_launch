@@ -17,11 +17,9 @@ import (
 )
 
 func main() {
-	fmt.Println("Start")
+	fmt.Println("[rkbx_launch] Starting...")
 
 	config := helpers.NewBoundRkbxConfig()
-	go helpers.LoadConfigFile("./rkbx_link/config", &config)
-
 	a := app.NewWithID("rkbx_launch_app")
 
 	a.Settings().SetTheme(&RkbxTheme{})
@@ -29,7 +27,7 @@ func main() {
 	mainWindow, cancel := newMainWindow(a, &config)
 
 	var licenseWindow fyne.Window
-	licenseWindow = newLicenseWindow(&a,
+	licenseWindow = NewLicenseWindow(&a,
 		func(key string) {
 			config.App_licenseKey.Set(key)
 			licenseWindow.Hide()
@@ -41,16 +39,68 @@ func main() {
 			mainWindow.CenterOnScreen()
 		})
 
-	if val, err := config.App_licenseKey.Get(); err == nil && val == "evaluation" {
-		licenseWindow.Show()
-	} else {
+	licenseWindow.SetCloseIntercept(func() {
 		mainWindow.Show()
+		licenseWindow.Hide()
 		mainWindow.CenterOnScreen()
+	})
+
+	fmt.Println("[rkbx_launch] Checking for updates...")
+	version, err := getInstalledVersion()
+
+	if err != nil {
+		// rkbx_link is not (properly) installed, download
+		var modal fyne.Window
+		modal = NewModalWindow(&a, "No Installation Found", "No installation of rkbx_link was found. Would you like to download the latest version?", "Download", "Exit",
+			func() {
+				// Download latest version and open license window as the new copy cannot be registered
+				downloadLatestVersion()
+				modal.Hide()
+
+				go helpers.LoadConfigFile("./rkbx_link/config", &config)
+				licenseWindow.Show()
+			},
+			func() {
+				// Quit application as rkbx_launch cannot be used without rkbx_link
+
+				modal.Hide()
+				a.Quit()
+			},
+		)
+		modal.Show()
+	} else if isUpdateAvailable(version) {
+		// update available, download
+		var modal fyne.Window
+		modal = NewModalWindow(&a, "Update Available", "A new version of rkbx_link is available!", "Update", "Continue without updating",
+			func() {
+				// Download latest version and continue to main / license window
+				downloadLatestVersion()
+				modal.Hide()
+				mainLoop(&config, licenseWindow, mainWindow)
+			},
+			func() {
+				modal.Hide()
+			},
+		)
+		modal.Show()
+	} else {
+		mainLoop(&config, licenseWindow, mainWindow)
 	}
 
 	a.Run()
 
 	cancel()
+}
+
+func mainLoop(config *helpers.BoundRkbxConfig, licenseWindow fyne.Window, mainWindow fyne.Window) {
+	go helpers.LoadConfigFile("./rkbx_link/config", config)
+
+	if config.IsEvaluation() {
+		licenseWindow.Show()
+	} else {
+		mainWindow.Show()
+		mainWindow.CenterOnScreen()
+	}
 }
 
 func setupRkbxLinkProcess(ctx context.Context, connectedWidget *canvas.Image, disconnectedWidget *canvas.Image, w *fyne.Window) (*exec.Cmd, chan int) {
@@ -127,6 +177,7 @@ func isUpdateAvailable(installedVersion string) bool {
 }
 
 func downloadLatestVersion() {
+	fmt.Println("[rkbx_launch] Downloading latest version...")
 	os.Remove("rkbx_link")
 	helpers.HttpDownloadFile("https://raw.githubusercontent.com/grufkork/rkbx_link/9113cbba11822f689af561f8b393016d8ba9093b/version_exe", "version_exe")
 	helpers.HttpDownloadFile("https://github.com/grufkork/rkbx_link/releases/latest/download/rkbx_link_win.zip", "latest.temp.zip")
