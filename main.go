@@ -98,7 +98,7 @@ func main() {
 	cancel()
 }
 
-func mainLoop(config *helpers.BoundRkbxConfig, licenseWindow fyne.Window, mainWindow fyne.Window) {
+func mainLoop(config *helpers.RkbxLinkConfig, licenseWindow fyne.Window, mainWindow fyne.Window) {
 	helpers.LoadConfigFile(configFilePath, config)
 
 	if config.IsEvaluation() {

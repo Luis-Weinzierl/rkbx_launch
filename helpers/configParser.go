@@ -11,7 +11,7 @@ import (
 	"fyne.io/fyne/v2/data/binding"
 )
 
-type BoundRkbxConfig struct {
+type RkbxLinkConfig struct {
 	// ---------- General ----------
 	App_licenseKey binding.String
 
@@ -74,14 +74,14 @@ type BoundRkbxConfig struct {
 	AvailableRekordboxVersions binding.StringList
 }
 
-func (config *BoundRkbxConfig) IsEvaluation() bool {
+func (config *RkbxLinkConfig) IsEvaluation() bool {
 	if val, err := config.App_licenseKey.Get(); err == nil {
 		return val == "evaluation" || val == ""
 	}
 	return false
 }
 
-func fillFromConfigMap(config *BoundRkbxConfig, configMap map[string]string) {
+func fillFromConfigMap(config *RkbxLinkConfig, configMap map[string]string) {
 	keeperUpdateRate, err1 := strconv.Atoi(configMap["keeper.update_rate"])
 	keeperSlowUpdateEveryNth, err2 := strconv.Atoi(configMap["keeper.slow_update_every_nth"])
 	keeperDelayCompensation, err3 := strconv.Atoi(configMap["keeper.delay_compensation"])
@@ -161,7 +161,7 @@ func fillFromConfigMap(config *BoundRkbxConfig, configMap map[string]string) {
 	config.AvailableRekordboxVersions.Set(availVersions)
 }
 
-func convertToConfigMap(config *BoundRkbxConfig) map[string]string {
+func convertToConfigMap(config *RkbxLinkConfig) map[string]string {
 	appLicenseKey, _ := config.App_licenseKey.Get()
 
 	keeperRekordboxVersion, _ := config.Keeper_rekordboxVersion.Get()
@@ -257,7 +257,7 @@ func convertToConfigMap(config *BoundRkbxConfig) map[string]string {
 	}
 }
 
-func LoadConfigFile(filePath string, out *BoundRkbxConfig) {
+func LoadConfigFile(filePath string, out *RkbxLinkConfig) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		log.Fatal(err)
@@ -290,7 +290,7 @@ func LoadConfigFile(filePath string, out *BoundRkbxConfig) {
 	fillFromConfigMap(out, configMap)
 }
 
-func StoreConfigFile(config *BoundRkbxConfig, filePath string) {
+func StoreConfigFile(config *RkbxLinkConfig, filePath string) {
 	lines := "# This file is auto-generated. Manual changes will be overwritten.\n\n"
 
 	for key, value := range convertToConfigMap(config) {
@@ -300,8 +300,8 @@ func StoreConfigFile(config *BoundRkbxConfig, filePath string) {
 	os.WriteFile(filePath, []byte(lines), 0064)
 }
 
-func NewBoundRkbxConfig() BoundRkbxConfig {
-	return BoundRkbxConfig{
+func NewBoundRkbxConfig() RkbxLinkConfig {
+	return RkbxLinkConfig{
 		App_licenseKey:                   binding.NewString(),
 		Keeper_rekordboxVersion:          binding.NewString(),
 		Keeper_updateRate:                binding.NewInt(),
@@ -357,14 +357,14 @@ func OptionalToString(value binding.Float, enabled binding.Bool) string {
 
 func OptionalStringToBindings(valueBind binding.Float, enabledBind binding.Bool, valueStr string) {
 	if valueStr == "" {
-		valueBind.Set(0)
+		valueBind.Set(1.0)
 		enabledBind.Set(false)
 	} else {
 		if val, err := strconv.ParseFloat(valueStr, 32); err == nil {
 			valueBind.Set(val)
 			enabledBind.Set(true)
 		} else {
-			valueBind.Set(0)
+			valueBind.Set(1.0)
 			enabledBind.Set(false)
 		}
 	}

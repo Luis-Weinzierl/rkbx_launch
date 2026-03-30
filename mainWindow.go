@@ -11,7 +11,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func newMainWindow(a fyne.App, config *helpers.BoundRkbxConfig) (fyne.Window, context.CancelFunc) {
+func newMainWindow(a fyne.App, config *helpers.RkbxLinkConfig) (fyne.Window, context.CancelFunc) {
 	w := a.NewWindow("rkbx_link")
 
 	oscOptions := widgets.NewOscOptions(config)

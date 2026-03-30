@@ -8,7 +8,7 @@ import (
 	"fyne.io/fyne/v2/data/binding"
 )
 
-func NewSacnOptions(config *helpers.BoundRkbxConfig) *fyne.Container {
+func NewSacnOptions(config *helpers.RkbxLinkConfig) *fyne.Container {
 	options := binding.BindStringList(&[]string{"multicast", "unicast"})
 	sacnOptions := container.NewVBox(
 		NewIpEntry("Local Address to bind or sACN", config.Sacn_source),

@@ -24,15 +24,19 @@ func NewEntrySlider(title string, min int, max int, bind binding.Int) *fyne.Cont
 }
 
 func NewEntrySliderF(title string, min float64, max float64, bind binding.Float) *fyne.Container {
+	return container.NewVBox(
+		widget.NewLabel(title),
+		NewEntrySliderFWithoutLabel(min, max, 0.01, bind),
+	)
+}
+
+func NewEntrySliderFWithoutLabel(min float64, max float64, step float64, bind binding.Float) *fyne.Container {
 	entryBind := binding.FloatToStringWithFormat(bind, "%.2f")
 
 	slider := widget.NewSliderWithData(min, max, bind)
-	slider.Step = 0.01
+	slider.Step = step
 
 	entry := widget.NewEntryWithData(entryBind)
 
-	return container.NewVBox(
-		widget.NewLabel(title),
-		container.New(layout.NewGridLayoutWithColumns(2), slider, entry),
-	)
+	return container.New(layout.NewGridLayoutWithColumns(2), slider, entry)
 }

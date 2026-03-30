@@ -7,7 +7,7 @@ import (
 	"fyne.io/fyne/v2/container"
 )
 
-func NewSetlistOptions(config *helpers.BoundRkbxConfig) *fyne.Container {
+func NewSetlistOptions(config *helpers.RkbxLinkConfig) *fyne.Container {
 	setlistOptions := container.NewVBox(
 		NewFormEntry("Output Filename", config.Setlist_filename),
 		NewFormEntry("Track Seperator", config.Setlist_seperator),
