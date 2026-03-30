@@ -153,13 +153,7 @@ func fillFromConfigMap(config *RkbxLinkConfig, configMap map[string]string) {
 	config.Sacn_mode.Set(configMap["sacn.mode"])
 	config.Sacn_sourceName.Set(configMap["sacn.source_name"])
 
-	availVersions := []string{"7.2.10", "7.2.8", "7.2.6", "7.2.4", "7.2.3", "7.2.2", "7.1.4"}
-
-	if config.IsEvaluation() {
-		availVersions = []string{"7.2.2"}
-	}
-
-	config.AvailableRekordboxVersions.Set(availVersions)
+	config.updateAvaliableVersions()
 	config.HasUnsavedChanges.Set(false)
 }
 
@@ -313,7 +307,7 @@ func NewBoundRkbxConfig() RkbxLinkConfig {
 		config.HasUnsavedChanges.Set(true)
 	})
 
-	config.App_licenseKey = newStringBindingWithListener(listener)
+	config.App_licenseKey = binding.NewString() // Doesn't change during normal operation so we dont need to track it in the normal routine
 	config.Keeper_rekordboxVersion = newStringBindingWithListener(listener)
 	config.Keeper_updateRate = newIntBindingWithListener(listener)
 	config.Keeper_slowUpdateEveryNth = newIntBindingWithListener(listener)
@@ -354,7 +348,19 @@ func NewBoundRkbxConfig() RkbxLinkConfig {
 	config.Sacn_mode = newStringBindingWithListener(listener)
 	config.Sacn_sourceName = newStringBindingWithListener(listener)
 
+	config.App_licenseKey.AddListener(binding.NewDataListener(config.updateAvaliableVersions))
+
 	return config
+}
+
+func (config RkbxLinkConfig) updateAvaliableVersions() {
+	availVersions := []string{"7.2.10", "7.2.8", "7.2.6", "7.2.4", "7.2.3", "7.2.2", "7.1.4"}
+
+	if config.IsEvaluation() {
+		availVersions = []string{"7.2.2"}
+	}
+
+	config.AvailableRekordboxVersions.Set(availVersions)
 }
 
 func newStringBindingWithListener(listener binding.DataListener) binding.String {
