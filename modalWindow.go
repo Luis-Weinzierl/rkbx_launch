@@ -18,15 +18,15 @@ func NewModalWindow(a *fyne.App, title string, hero string, accept string, deny 
 	pStyle.Alignment = fyne.TextAlignCenter
 
 	rt := widget.NewRichText(
-		&widget.TextSegment{Text: title, Style: hStyle},
-		&widget.TextSegment{Text: hero, Style: pStyle})
+		&widget.TextSegment{Text: globalisation.Get(title), Style: hStyle},
+		&widget.TextSegment{Text: globalisation.Get(hero), Style: pStyle})
 
 	modalWindow.SetContent(
 		container.NewBorder(
 			nil,
 			container.NewVBox(
-				widget.NewButton(accept, acceptedCallback),
-				widget.NewButton(deny, cancelledCallback),
+				widget.NewButton(globalisation.Get(accept), acceptedCallback),
+				widget.NewButton(globalisation.Get(deny), cancelledCallback),
 			),
 			nil, nil,
 			container.NewCenter(

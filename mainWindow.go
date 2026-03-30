@@ -103,7 +103,7 @@ func newMainWindow(a fyne.App, config *helpers.RkbxLinkConfig) (fyne.Window, con
 			cancel()
 			<-c
 
-			runButton.SetText("Start")
+			runButton.SetText(globalisation.Get(globalisation.StartLabel))
 			fmt.Println("[rkbx_launch] Stopped.")
 			ctx, cancel = context.WithCancel(context.Background())
 			cmd, c = setupRkbxLinkProcess(ctx, stateConnected, stateDisconnected, &w)

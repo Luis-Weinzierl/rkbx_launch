@@ -25,12 +25,12 @@ func NewLicenseWindow(a *fyne.App, registeredCallback func(string), cancelledCal
 			nil,
 			container.NewVBox(
 				licenseEntry,
-				widget.NewButton("Register", func() {
+				widget.NewButton(globalisation.Get(globalisation.RegisterLabel), func() {
 					if licenseEntry.Validate() == nil {
 						registeredCallback(licenseEntry.Text)
 					}
 				}),
-				widget.NewButton("I'm only testing rkbx_link", cancelledCallback),
+				widget.NewButton(globalisation.Get(globalisation.OnlyTestingLabel), cancelledCallback),
 			),
 			nil, nil,
 			widgets.NewHero(globalisation.RegisterRkbxLink),

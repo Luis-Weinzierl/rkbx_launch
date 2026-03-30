@@ -71,7 +71,11 @@ func main() {
 	if err != nil {
 		// rkbx_link is not (properly) installed, download
 		var modal fyne.Window
-		modal = NewModalWindow(&a, "No Installation Found", "No installation of rkbx_link was found. \nWould you like to download the latest version?", "Download", "Exit",
+		modal = NewModalWindow(&a,
+			globalisation.InstallModalTitle,
+			globalisation.InstallModalContent,
+			globalisation.DownloadLabel,
+			globalisation.ExitLabel,
 			func() {
 				// Download latest version and open license window as the new copy cannot be registered
 				downloadLatestVersion()
@@ -91,7 +95,11 @@ func main() {
 	} else if isUpdateAvailable(version) {
 		// update available, download
 		var modal fyne.Window
-		modal = NewModalWindow(&a, "Update available", "A new version of rkbx_link is available!", "Update", "Continue without updating",
+		modal = NewModalWindow(&a,
+			globalisation.UpdateModalTitle,
+			globalisation.UpdateModalContent,
+			globalisation.UpdateLabel,
+			globalisation.ContinueWithoutUpdatingLabel,
 			func() {
 				// Download latest version and continue to main / license window
 				downloadLatestVersion()
