@@ -8,8 +8,13 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func NewModalWindow(a *fyne.App, title string, hero string, accept string, deny string, acceptedCallback func(), cancelledCallback func()) fyne.Window {
-	modalWindow := (*a).NewWindow(globalisation.Get(title))
+const titleSuffix = "/title"
+const contentSuffix = "/content"
+const acceptSuffix = "/accept"
+const denySuffix = "/deny"
+
+func NewModalWindow(a *fyne.App, modalId string, acceptedCallback func(), cancelledCallback func()) fyne.Window {
+	modalWindow := (*a).NewWindow(globalisation.Get(modalId + titleSuffix))
 
 	hStyle := widget.RichTextStyleHeading
 	hStyle.Alignment = fyne.TextAlignCenter
@@ -18,15 +23,15 @@ func NewModalWindow(a *fyne.App, title string, hero string, accept string, deny 
 	pStyle.Alignment = fyne.TextAlignCenter
 
 	rt := widget.NewRichText(
-		&widget.TextSegment{Text: globalisation.Get(title), Style: hStyle},
-		&widget.TextSegment{Text: globalisation.Get(hero), Style: pStyle})
+		&widget.TextSegment{Text: globalisation.Get(modalId + titleSuffix), Style: hStyle},
+		&widget.TextSegment{Text: globalisation.Get(modalId + contentSuffix), Style: pStyle})
 
 	modalWindow.SetContent(
 		container.NewBorder(
 			nil,
 			container.NewVBox(
-				widget.NewButton(globalisation.Get(accept), acceptedCallback),
-				widget.NewButton(globalisation.Get(deny), cancelledCallback),
+				widget.NewButton(globalisation.Get(modalId+acceptSuffix), acceptedCallback),
+				widget.NewButton(globalisation.Get(modalId+denySuffix), cancelledCallback),
 			),
 			nil, nil,
 			container.NewCenter(

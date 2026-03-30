@@ -1,6 +1,6 @@
 {
-    "mainWindowTitle": "rkbx_link",
-    "mainWindowTitle/unsaved": "rkbx_link *",
+    "mainWindow/title": "rkbx_link",
+    "mainWindow/title/unsaved": "rkbx_link *",
     "registerRkbxLink": "Register rkbx_link",
     "configuration": "Configuration",
     "general": "General",
@@ -47,14 +47,6 @@
     "onlyTesting": "I'm only testing rkbx_link",
     "stopToConfigure": "Stop rkbx_link to configure.",
     "targetVersion": "Rekordbox version to target",
-    "installModalTitle": "No Installation Found",
-    "installModalContent": "No installation of rkbx_link was found. \nWould you like to download the latest version?",
-    "download": "Download",
-    "exit": "Exit",
-    "updateModalTitle": "Update available",
-    "updateModalContent": "A new version of rkbx_link is available!",
-    "update": "Update",
-    "continueWithoutUpdating": "Continue without updating",
     "updateRate/tooltip": "How often to fetch song position per second",
     "slowUpdateEveryNth/tooltip": "Perform a slow update every n-th Update",
     "delayCompensation/tooltip": "Positive values advance the output",
@@ -66,8 +58,18 @@
     "nonMasterBeatSubdivision/tooltip": "The beat subdivision to send for non-master decks. E.g. 0.25 will send a message every beat, 1 every bar, etc.",
     "nonMasterBeatTrigger/tooltip": "The beat trigger to send for non-master decks. E.g. 0.25 will send a message every beat, 1 every bar, etc.",
 
-    "versionWarningModalTitle": "Warning!",
-    "versionWarningModalContent": "After registering rkbx_link, you will first need to start it manually\r\nto download the offsets.\r\nThis will be fixed with rkbx_link v. 1.2.1",
-    "versionWarningModalAccept": "Understood",
-    "versionWarningModalDeny": "Exit rkbx_launch"
+    "versionWarningModal/title": "Warning!",
+    "versionWarningModal/content": "After registering rkbx_link, you will first need to start it manually\r\nto download the offsets.\r\nThis will be fixed with rkbx_link v. 1.2.1",
+    "versionWarningModal/accept": "Understood",
+    "versionWarningModal/deny": "Exit rkbx_launch",
+
+    "updateModal/title": "Update available",
+    "updateModal/content": "A new version of rkbx_link is available!",
+    "updateModal/accept": "Update",
+    "updateModal/deny": "Continue without updating",
+
+    "installModal/title": "No Installation Found",
+    "installModal/content": "No installation of rkbx_link was found. \nWould you like to download the latest version?",
+    "installModal/accept": "Download",
+    "installModal/deny": "Exit"
 }

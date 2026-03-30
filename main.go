@@ -72,10 +72,7 @@ func main() {
 		// rkbx_link is not (properly) installed, download
 		var modal fyne.Window
 		modal = NewModalWindow(&a,
-			globalisation.InstallModalTitle,
-			globalisation.InstallModalContent,
-			globalisation.DownloadLabel,
-			globalisation.ExitLabel,
+			globalisation.InstallModalId,
 			func() {
 				// Download latest version and open license window as the new copy cannot be registered
 				downloadLatestVersion()
@@ -96,10 +93,7 @@ func main() {
 		// update available, download
 		var modal fyne.Window
 		modal = NewModalWindow(&a,
-			globalisation.UpdateModalTitle,
-			globalisation.UpdateModalContent,
-			globalisation.UpdateLabel,
-			globalisation.ContinueWithoutUpdatingLabel,
+			globalisation.UpdateModalId,
 			func() {
 				// Download latest version and continue to main / license window
 				downloadLatestVersion()
@@ -117,7 +111,7 @@ func main() {
 	}
 
 	var warn fyne.Window
-	warn = NewModalWindow(&a, "versionWarningModalTitle", "versionWarningModalContent", "versionWarningModalAccept", "versionWarningModalDeny", func() { warn.Hide() }, func() { a.Quit() })
+	warn = NewModalWindow(&a, globalisation.VersionWarningModalId, func() { warn.Hide() }, func() { a.Quit() })
 	warn.Show()
 
 	a.Run()

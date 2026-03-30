@@ -1,6 +1,6 @@
 {
-    "mainWindowTitle": "rkbx_link",
-    "mainWindowTitle/unsaved": "rkbx_link *",
+    "mainWindow/title": "rkbx_link",
+    "mainWindow/title/unsaved": "rkbx_link *",
     "registerRkbxLink": "Registriere rkbx_link",
     "configuration": "Konfiguration",
     "general": "Allgemein",
@@ -47,14 +47,6 @@
     "onlyTesting": "Ich teste rkbx_link nur",
     "stopToConfigure": "Stoppe rkbx_link, um die Konfiguration zu ändern.",
     "targetVersion": "Installierte Rekordbox Version",
-    "installModalTitle": "Keine Installation gefunden",
-    "installModalContent": "Keine Installation von rkbx_link wurde gefunden. \nMöchten Sie die neueste Version herunterladen?",
-    "download": "Herunterladen",
-    "exit": "Verlassen",
-    "updateModalTitle": "Update verfügbar",
-    "updateModalContent": "Eine neue Version von rkbx_link ist verfügbar!",
-    "update": "Update",
-    "continueWithoutUpdating": "Weiter ohne Update",
     "updateRate/tooltip": "Wie oft die Songposition pro Sekunde abgefragt wird",
     "slowUpdateEveryNth/tooltip": "Jedes n-te Update wird ein langsames Update durchgeführt",
     "delayCompensation/tooltip": "Positive Werte beschleunigen die Ausgabe",
@@ -64,5 +56,15 @@
     "masterBeatSubdivision/tooltip": "Die Beat-Unterteilung, die für das Master-Deck gesendet wird. Z.b. sendet 0.25 eine Nachricht jeden Beat, 1 jede Bar, etc.",
     "masterBeatTrigger/tooltip": "Die Beat-Trigger, die für das Master-Deck gesendet werden. Z.b. sendet 0.25 eine Nachricht jeden Beat, 1 jede Bar, etc.",
     "nonMasterBeatSubdivision/tooltip": "Die Beat-Unterteilung, die für nicht-Master-Decks gesendet wird. Z.b. sendet 0.25 eine Nachricht jeden Beat, 1 jede Bar, etc.",
-    "nonMasterBeatTrigger/tooltip": "Die Beat-Trigger, die für nicht-Master-Decks gesendet werden. Z.b. sendet 0.25 eine Nachricht jeden Beat, 1 jede Bar, etc."
+    "nonMasterBeatTrigger/tooltip": "Die Beat-Trigger, die für nicht-Master-Decks gesendet werden. Z.b. sendet 0.25 eine Nachricht jeden Beat, 1 jede Bar, etc.",
+
+    "installModal/title": "Keine Installation gefunden",
+    "installModal/content": "Keine Installation von rkbx_link wurde gefunden. \nMöchten Sie die neueste Version herunterladen?",
+    "installModal/accept": "Herunterladen",
+    "installModal/deny": "Verlassen",
+    
+    "updateModal/title": "Update verfügbar",
+    "updateModal/content": "Eine neue Version von rkbx_link ist verfügbar!",
+    "updateModal/accept": "Update",
+    "updateModal/deny": "Weiter ohne Update"
 }
