@@ -94,8 +94,7 @@ func fillFromConfigMap(config *BoundRkbxConfig, configMap map[string]string) {
 	linkCumulativeErrorTolerance, err9 := strconv.ParseFloat(configMap["link.cumulative_error_tolerance"], 32)
 
 	sacnTargetsStr := configMap["sacn.targets"]
-	sacnTargetsParts := strings.Split(sacnTargetsStr, " ")
-	sacnTargets := binding.BindStringList(&sacnTargetsParts)
+	sacnTargets := strings.Split(sacnTargetsStr, " ")
 
 	if err1 != nil ||
 		err2 != nil ||
@@ -146,7 +145,7 @@ func fillFromConfigMap(config *BoundRkbxConfig, configMap map[string]string) {
 
 	config.Sacn_enabled.Set(configMap["sacn.enabled"] == "true")
 	config.Sacn_source.Set(configMap["sacn.source"])
-	config.Sacn_targets = sacnTargets
+	config.Sacn_targets.Set(sacnTargets)
 	config.Sacn_priority.Set(sacnPriority)
 	config.Sacn_universe.Set(sacnUniverse)
 	config.Sacn_startChannel.Set(sacnStartChannel)

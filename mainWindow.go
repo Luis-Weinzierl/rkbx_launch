@@ -82,10 +82,12 @@ func newMainWindow(a fyne.App, config *helpers.BoundRkbxConfig) (fyne.Window, co
 	cmd, c := setupRkbxLinkProcess(ctx, stateConnected, stateDisconnected, &w)
 
 	runButton := widget.NewButton("Start", func() {})
-	saveButton := widget.NewButton("Save", func() { go helpers.StoreConfigFile(config, "./rkbx_link/config") })
+	saveButton := widget.NewButton("Save", func() {
+		fmt.Println(config.Sacn_targets.Get())
+		go helpers.StoreConfigFile(config, "./rkbx_link/config")
+	})
 
 	runButton.OnTapped = func() {
-		fmt.Println(w.Canvas().Size())
 		if !running {
 			helpers.StoreConfigFile(config, "./rkbx_link/config")
 			cmd.Start()
