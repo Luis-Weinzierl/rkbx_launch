@@ -150,6 +150,7 @@ func attachScanner(cmd *exec.Cmd, c chan int, connectedWidget *canvas.Image, dis
 		line := scanner.Text()
 
 		if strings.Contains(line, "Read memory failed") ||
+			strings.Contains(line, "Ensure Rekordbox is running!") ||
 			strings.Contains(line, "Connection to Rekordbox lost") {
 			fyne.Do(func() {
 				connectedWidget.Hide()
