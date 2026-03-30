@@ -72,6 +72,7 @@ type RkbxLinkConfig struct {
 
 	// ---------- Internal ----------
 	AvailableRekordboxVersions binding.StringList
+	HasUnsavedChanges          binding.Bool
 }
 
 func (config *RkbxLinkConfig) IsEvaluation() bool {
@@ -159,6 +160,7 @@ func fillFromConfigMap(config *RkbxLinkConfig, configMap map[string]string) {
 	}
 
 	config.AvailableRekordboxVersions.Set(availVersions)
+	config.HasUnsavedChanges.Set(false)
 }
 
 func convertToConfigMap(config *RkbxLinkConfig) map[string]string {
@@ -298,52 +300,91 @@ func StoreConfigFile(config *RkbxLinkConfig, filePath string) {
 	}
 
 	os.WriteFile(filePath, []byte(lines), 0064)
+	config.HasUnsavedChanges.Set(false)
 }
 
 func NewBoundRkbxConfig() RkbxLinkConfig {
-	return RkbxLinkConfig{
-		App_licenseKey:                   binding.NewString(),
-		Keeper_rekordboxVersion:          binding.NewString(),
-		Keeper_updateRate:                binding.NewInt(),
-		Keeper_slowUpdateEveryNth:        binding.NewInt(),
-		Keeper_delayCompensation:         binding.NewInt(),
-		Keeper_keepWarm:                  binding.NewBool(),
-		Keeper_decks:                     binding.NewInt(),
-		Link_enabled:                     binding.NewBool(),
-		Link_cumulativeErrorTolerance:    binding.NewFloat(),
-		Osc_enabled:                      binding.NewBool(),
-		Osc_source:                       binding.NewString(),
-		Osc_destination:                  binding.NewString(),
-		Osc_sendEveryNth:                 binding.NewInt(),
-		Osc_phraseOutputFormat:           binding.NewString(),
-		Osc_trigger_autorelease:          binding.NewBool(),
-		Osc_msg_masterTime:               binding.NewBool(),
-		Osc_msg_masterPhrase:             binding.NewBool(),
-		Osc_msg_nTime:                    binding.NewBool(),
-		Osc_msg_nPhrase:                  binding.NewBool(),
-		Osc_msg_masterBeatSubdiv:         binding.NewFloat(),
-		Osc_msg_masterBeatSubdivEnabled:  binding.NewBool(),
-		Osc_msg_masterBeatTrigger:        binding.NewFloat(),
-		Osc_msg_masterBeatTriggerEnabled: binding.NewBool(),
-		Osc_msg_nBeatSubdiv:              binding.NewFloat(),
-		Osc_msg_nBeatSubdivEnabled:       binding.NewBool(),
-		Osc_msg_nBeatTrigger:             binding.NewFloat(),
-		Osc_msg_nBeatTriggerEnabled:      binding.NewBool(),
-		File_enabled:                     binding.NewBool(),
-		File_fileName:                    binding.NewString(),
-		Setlist_enabled:                  binding.NewBool(),
-		Setlist_seperator:                binding.NewString(),
-		Setlist_filename:                 binding.NewString(),
-		Sacn_enabled:                     binding.NewBool(),
-		Sacn_source:                      binding.NewString(),
-		Sacn_targets:                     binding.NewStringList(),
-		Sacn_priority:                    binding.NewInt(),
-		Sacn_universe:                    binding.NewInt(),
-		Sacn_startChannel:                binding.NewInt(),
-		Sacn_mode:                        binding.NewString(),
-		Sacn_sourceName:                  binding.NewString(),
-		AvailableRekordboxVersions:       binding.NewStringList(),
-	}
+	config := RkbxLinkConfig{}
+
+	config.AvailableRekordboxVersions = binding.NewStringList()
+	config.HasUnsavedChanges = binding.NewBool()
+
+	listener := binding.NewDataListener(func() {
+		config.HasUnsavedChanges.Set(true)
+	})
+
+	config.App_licenseKey = newStringBindingWithListener(listener)
+	config.Keeper_rekordboxVersion = newStringBindingWithListener(listener)
+	config.Keeper_updateRate = newIntBindingWithListener(listener)
+	config.Keeper_slowUpdateEveryNth = newIntBindingWithListener(listener)
+	config.Keeper_delayCompensation = newIntBindingWithListener(listener)
+	config.Keeper_keepWarm = newBoolBindingWithListener(listener)
+	config.Keeper_decks = newIntBindingWithListener(listener)
+	config.Link_enabled = newBoolBindingWithListener(listener)
+	config.Link_cumulativeErrorTolerance = newFloatBindingWithListener(listener)
+	config.Osc_enabled = newBoolBindingWithListener(listener)
+	config.Osc_source = newStringBindingWithListener(listener)
+	config.Osc_destination = newStringBindingWithListener(listener)
+	config.Osc_sendEveryNth = newIntBindingWithListener(listener)
+	config.Osc_phraseOutputFormat = newStringBindingWithListener(listener)
+	config.Osc_trigger_autorelease = newBoolBindingWithListener(listener)
+	config.Osc_msg_masterTime = newBoolBindingWithListener(listener)
+	config.Osc_msg_masterPhrase = newBoolBindingWithListener(listener)
+	config.Osc_msg_nTime = newBoolBindingWithListener(listener)
+	config.Osc_msg_nPhrase = newBoolBindingWithListener(listener)
+	config.Osc_msg_masterBeatSubdiv = newFloatBindingWithListener(listener)
+	config.Osc_msg_masterBeatSubdivEnabled = newBoolBindingWithListener(listener)
+	config.Osc_msg_masterBeatTrigger = newFloatBindingWithListener(listener)
+	config.Osc_msg_masterBeatTriggerEnabled = newBoolBindingWithListener(listener)
+	config.Osc_msg_nBeatSubdiv = newFloatBindingWithListener(listener)
+	config.Osc_msg_nBeatSubdivEnabled = newBoolBindingWithListener(listener)
+	config.Osc_msg_nBeatTrigger = newFloatBindingWithListener(listener)
+	config.Osc_msg_nBeatTriggerEnabled = newBoolBindingWithListener(listener)
+	config.File_enabled = newBoolBindingWithListener(listener)
+	config.File_fileName = newStringBindingWithListener(listener)
+	config.Setlist_enabled = newBoolBindingWithListener(listener)
+	config.Setlist_seperator = newStringBindingWithListener(listener)
+	config.Setlist_filename = newStringBindingWithListener(listener)
+	config.Sacn_enabled = newBoolBindingWithListener(listener)
+	config.Sacn_source = newStringBindingWithListener(listener)
+	config.Sacn_targets = newStringListBindingWithListener(listener)
+	config.Sacn_priority = newIntBindingWithListener(listener)
+	config.Sacn_universe = newIntBindingWithListener(listener)
+	config.Sacn_startChannel = newIntBindingWithListener(listener)
+	config.Sacn_mode = newStringBindingWithListener(listener)
+	config.Sacn_sourceName = newStringBindingWithListener(listener)
+
+	return config
+}
+
+func newStringBindingWithListener(listener binding.DataListener) binding.String {
+	bind := binding.NewString()
+	bind.AddListener(listener)
+	return bind
+}
+
+func newBoolBindingWithListener(listener binding.DataListener) binding.Bool {
+	bind := binding.NewBool()
+	bind.AddListener(listener)
+	return bind
+}
+
+func newIntBindingWithListener(listener binding.DataListener) binding.Int {
+	bind := binding.NewInt()
+	bind.AddListener(listener)
+	return bind
+}
+
+func newFloatBindingWithListener(listener binding.DataListener) binding.Float {
+	bind := binding.NewFloat()
+	bind.AddListener(listener)
+	return bind
+}
+
+func newStringListBindingWithListener(listener binding.DataListener) binding.StringList {
+	bind := binding.NewStringList()
+	bind.AddListener(listener)
+	return bind
 }
 
 func OptionalToString(value binding.Float, enabled binding.Bool) string {

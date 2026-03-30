@@ -187,6 +187,7 @@ func isUpdateAvailable(installedVersion string) bool {
 	resp, err := http.Get("https://raw.githubusercontent.com/grufkork/rkbx_link/9113cbba11822f689af561f8b393016d8ba9093b/version_exe")
 
 	if err != nil {
+		fmt.Println("[rkbx_launch] Error while fetching version_exe from grufkork/rkbx_link repo. Please check internet connection.")
 		return false
 	}
 
@@ -195,12 +196,14 @@ func isUpdateAvailable(installedVersion string) bool {
 	body, err := io.ReadAll(resp.Body)
 
 	if err != nil {
+		fmt.Println("[rkbx_launch] Error while reading version_exe from grufkork/rkbx_link repo. Skipping update process.")
 		return false
 	}
 
 	latest := string(body)
 
-	fmt.Println(latest)
+	fmt.Printf("[rkbx_launch] Installed version: %s \r\n", installedVersion)
+	fmt.Printf("[rkbx_launch] Newest version: %s \r\n", latest)
 
 	return installedVersion != latest
 }
@@ -212,17 +215,4 @@ func downloadLatestVersion() {
 	helpers.HttpDownloadFile("https://github.com/grufkork/rkbx_link/releases/latest/download/rkbx_link_win.zip", "latest.temp.zip")
 	helpers.Unzip("latest.temp.zip", linkDir)
 	os.Remove("latest.temp.zip")
-}
-
-func updateLink() {
-	version, err := getInstalledVersion()
-
-	if err != nil {
-
-	} else if isUpdateAvailable(version) {
-
-	} else {
-
-	}
-
 }

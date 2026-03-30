@@ -57,6 +57,9 @@ const TargetVersionLabel = "targetVersion"
 const RegisterLabel = "register"
 const OnlyTestingLabel = "onlyTesting"
 
+const MainWindowTitle = "mainWindowTitle"
+const MainWindowTitleUnsaved = "mainWindowTitle/unsaved"
+
 const InstallModalTitle = "installModalTitle"
 const InstallModalContent = "installModalContent"
 const DownloadLabel = "download"

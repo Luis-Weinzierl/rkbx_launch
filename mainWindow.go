@@ -9,12 +9,13 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/widget"
 	fynetooltip "github.com/dweymouth/fyne-tooltip"
 )
 
 func newMainWindow(a fyne.App, config *helpers.RkbxLinkConfig) (fyne.Window, context.CancelFunc) {
-	w := a.NewWindow("rkbx_link")
+	w := a.NewWindow(globalisation.Get(globalisation.MainWindowTitle))
 
 	appOptions := widgets.NewAppOptions(config)
 	oscOptions := widgets.NewOscOptions(config)
@@ -29,24 +30,24 @@ func newMainWindow(a fyne.App, config *helpers.RkbxLinkConfig) (fyne.Window, con
 				widgets.NewHeader(globalisation.ConfigurationTitle),
 				widgets.NewSubheader(globalisation.GeneralHeading),
 				appOptions,
-				widgets.NewSubheader(""), // Hacky Spacer
+				widgets.NewVerticalSpacer(), // Hacky Spacer
 				widgets.NewSubheader(globalisation.ModulesHeading),
 				widgets.NewTitle(globalisation.LinkModuleHeading),
 				widgets.NewBoolConfigWithSubmenu(globalisation.EnabledLabel, config.Link_enabled, ablOptions),
 				ablOptions,
-				widgets.NewSubheader(""), // Hacky Spacer
+				widgets.NewVerticalSpacer(), // Hacky Spacer
 				widgets.NewTitle(globalisation.OscModuleHeading),
 				widgets.NewBoolConfigWithSubmenu(globalisation.EnabledLabel, config.Osc_enabled, oscOptions),
 				oscOptions,
-				widgets.NewSubheader(""), // Hacky Spacer
+				widgets.NewVerticalSpacer(), // Hacky Spacer
 				widgets.NewTitle(globalisation.SacnModuleHeading),
 				widgets.NewBoolConfigWithSubmenu(globalisation.EnabledLabel, config.Sacn_enabled, sacnOptions),
 				sacnOptions,
-				widgets.NewSubheader(""), // Hacky Spacer
+				widgets.NewVerticalSpacer(), // Hacky Spacer
 				widgets.NewTitle(globalisation.FileModuleHeading),
 				widgets.NewBoolConfigWithSubmenu(globalisation.EnabledLabel, config.File_enabled, fileOptions),
 				fileOptions,
-				widgets.NewSubheader(""), // Hacky Spacer
+				widgets.NewVerticalSpacer(), // Hacky Spacer
 				widgets.NewTitle(globalisation.SetlistModuleHeading),
 				widgets.NewBoolConfigWithSubmenu(globalisation.EnabledLabel, config.Setlist_enabled, setlistOptions),
 				setlistOptions,
@@ -139,6 +140,18 @@ func newMainWindow(a fyne.App, config *helpers.RkbxLinkConfig) (fyne.Window, con
 			runningDisplay,
 		),
 	)
+
+	config.HasUnsavedChanges.AddListener(binding.NewDataListener(func() {
+		hasUnsavedChanges, _ := config.HasUnsavedChanges.Get()
+
+		if hasUnsavedChanges {
+			runButton.Hide()
+			w.SetTitle(globalisation.Get(globalisation.MainWindowTitleUnsaved))
+		} else {
+			runButton.Show()
+			w.SetTitle(globalisation.Get(globalisation.MainWindowTitle))
+		}
+	}))
 
 	w.SetCloseIntercept(func() {
 		w.Close()

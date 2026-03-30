@@ -2,6 +2,7 @@ package widgets
 
 import (
 	"com/rkbx_launch/globalisation"
+	"image/color"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -41,4 +42,11 @@ func NewTitle(text string) *canvas.Text {
 	header.TextStyle.Bold = true
 
 	return header
+}
+
+func NewVerticalSpacer() *canvas.Text {
+	spacer := canvas.NewText("", color.RGBA{0, 0, 0, 0})
+	spacer.TextSize = 24
+
+	return spacer
 }

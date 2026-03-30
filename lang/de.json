@@ -1,4 +1,6 @@
 {
+    "mainWindowTitle": "rkbx_link",
+    "mainWindowTitle/unsaved": "rkbx_link *",
     "registerRkbxLink": "Registriere rkbx_link",
     "configuration": "Konfiguration",
     "general": "Allgemein",
