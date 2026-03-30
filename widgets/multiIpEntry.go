@@ -12,6 +12,7 @@ func NewMultiIpEntry(label string, bind binding.StringList) *fyne.Container {
 	ipBind := binding.NewString()
 	ipEntry := widget.NewEntryWithData(ipBind)
 	ipEntry.Validator = validation.NewRegexp(`^(\d{1,3}\.){3}\d{1,3}$`, "Invalid IP address format")
+	ipEntry.TextStyle.Monospace = true
 
 	ips := container.NewVBox()
 	ipsScroll := container.NewVScroll(ips)
@@ -41,11 +42,14 @@ func NewMultiIpEntry(label string, bind binding.StringList) *fyne.Container {
 }
 
 func newIpListItem(ip string, bind binding.StringList) *fyne.Container {
+	label := widget.NewLabel(ip)
+	label.TextStyle.Monospace = true
+
 	return container.NewBorder(nil, nil, nil,
 		widget.NewButton("-", func() {
 			bind.Remove(ip)
 		}),
-		widget.NewLabel(ip),
+		label,
 	)
 }
 

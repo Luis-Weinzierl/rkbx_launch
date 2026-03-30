@@ -70,3 +70,10 @@ var resourceInter28ptRegularTtf = &fyne.StaticResource{
 	StaticName:    "assets\\font\\Inter_28pt-Regular.ttf",
 	StaticContent: resourceInter28ptRegularTtfData,
 }
+
+//go:embed assets\font\JetBrainsMono-Regular.ttf
+var resourceJetBrainsMonoRegularTtfData []byte
+var resourceJetBrainsMonoRegularTtf = &fyne.StaticResource{
+	StaticName:    "assets\\font\\JetBrainsMono-Regular.ttf",
+	StaticContent: resourceJetBrainsMonoRegularTtfData,
+}

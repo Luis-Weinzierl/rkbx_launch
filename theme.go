@@ -35,6 +35,10 @@ func (m *RkbxTheme) Icon(name fyne.ThemeIconName) fyne.Resource {
 }
 
 func (m *RkbxTheme) Font(style fyne.TextStyle) fyne.Resource {
+	if style.Monospace {
+		return resourceJetBrainsMonoRegularTtf
+	}
+
 	if style.Bold && style.Italic {
 		return resourceInter28ptBoldItalicTtf
 	}
