@@ -15,8 +15,6 @@ import (
 )
 
 func newMainWindow(a fyne.App, config *helpers.RkbxLinkConfig) (fyne.Window, context.CancelFunc) {
-	NewModalWindow(&a, "versionWarningModalTitle", "versionWarningModalContent", "versionWarningModalAccept", "versionWarningModalDeny", func() {}, func() { a.Quit() })
-
 	w := a.NewWindow(globalisation.Get(globalisation.MainWindowTitle))
 
 	appOptions := widgets.NewAppOptions(config)
@@ -158,10 +156,9 @@ func newMainWindow(a fyne.App, config *helpers.RkbxLinkConfig) (fyne.Window, con
 	w.SetCloseIntercept(func() {
 		w.Close()
 		fynetooltip.DestroyWindowToolTipLayer(w.Canvas())
-		a.Quit()
 	})
 
 	w.SetContent(fynetooltip.AddWindowToolTipLayer(vbox, w.Canvas()))
-
+	w.SetMaster()
 	return w, cancel
 }

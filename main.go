@@ -116,6 +116,10 @@ func main() {
 		mainLoop(&config, licenseWindow, mainWindow)
 	}
 
+	var warn fyne.Window
+	warn = NewModalWindow(&a, "versionWarningModalTitle", "versionWarningModalContent", "versionWarningModalAccept", "versionWarningModalDeny", func() { warn.Hide() }, func() { a.Quit() })
+	warn.Show()
+
 	a.Run()
 
 	cancel()
