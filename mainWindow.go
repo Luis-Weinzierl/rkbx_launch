@@ -15,6 +15,8 @@ import (
 )
 
 func newMainWindow(a fyne.App, config *helpers.RkbxLinkConfig) (fyne.Window, context.CancelFunc) {
+	NewModalWindow(&a, "versionWarningModalTitle", "versionWarningModalContent", "versionWarningModalAccept", "versionWarningModalDeny", func() {}, func() { a.Quit() })
+
 	w := a.NewWindow(globalisation.Get(globalisation.MainWindowTitle))
 
 	appOptions := widgets.NewAppOptions(config)

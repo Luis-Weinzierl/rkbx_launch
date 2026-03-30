@@ -64,5 +64,10 @@
     "masterBeatSubdivision/tooltip": "The beat subdivision to send for the master deck. E.g. 0.25 will send a message every beat, 1 every bar, etc.",
     "masterBeatTrigger/tooltip": "The beat trigger to send for the master deck. E.g. 0.25 will send a message every beat, 1 every bar, etc.",
     "nonMasterBeatSubdivision/tooltip": "The beat subdivision to send for non-master decks. E.g. 0.25 will send a message every beat, 1 every bar, etc.",
-    "nonMasterBeatTrigger/tooltip": "The beat trigger to send for non-master decks. E.g. 0.25 will send a message every beat, 1 every bar, etc."
+    "nonMasterBeatTrigger/tooltip": "The beat trigger to send for non-master decks. E.g. 0.25 will send a message every beat, 1 every bar, etc.",
+
+    "versionWarningModalTitle": "Warning!",
+    "versionWarningModalContent": "After registering rkbx_link, you will first need to start it manually\r\nto download the offsets.\r\nThis will be fixed with rkbx_link v. 1.2.1",
+    "versionWarningModalAccept": "Understood",
+    "versionWarningModalDeny": "Exit rkbx_launch"
 }
