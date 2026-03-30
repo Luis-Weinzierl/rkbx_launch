@@ -21,7 +21,7 @@ func NewSelectEntry(title string, bind binding.String, options binding.StringLis
 	}))
 
 	return container.NewVBox(
-		widget.NewLabel(title),
+		NewInfoLabel(title),
 		sel,
 	)
 }

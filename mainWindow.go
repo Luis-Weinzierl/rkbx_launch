@@ -1,6 +1,7 @@
 package main
 
 import (
+	"com/rkbx_launch/globalisation"
 	"com/rkbx_launch/helpers"
 	"com/rkbx_launch/widgets"
 	"context"
@@ -9,11 +10,13 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
+	fynetooltip "github.com/dweymouth/fyne-tooltip"
 )
 
 func newMainWindow(a fyne.App, config *helpers.RkbxLinkConfig) (fyne.Window, context.CancelFunc) {
 	w := a.NewWindow("rkbx_link")
 
+	appOptions := widgets.NewAppOptions(config)
 	oscOptions := widgets.NewOscOptions(config)
 	ablOptions := widgets.NewAblOptions(config)
 	sacnOptions := widgets.NewSacnOptions(config)
@@ -23,34 +26,29 @@ func newMainWindow(a fyne.App, config *helpers.RkbxLinkConfig) (fyne.Window, con
 	configuration := container.NewVScroll(
 		container.NewBorder(nil, widget.NewLabel("\r\n"), widget.NewLabel("     "), widget.NewLabel("     "), // Hacky padding
 			container.NewVBox(
-				widgets.NewHeader("Configuration"),
-				widgets.NewSubheader("General"),
-				widgets.NewSelectEntry("Rekordbox Version", config.Keeper_rekordboxVersion, config.AvailableRekordboxVersions),
-				widgets.NewBoolConfig("Keep non-master decks warm", config.Keeper_keepWarm),
-				widgets.NewEntrySlider("Update rate (Hz)", 10, 500, config.Keeper_updateRate),
-				widgets.NewEntrySlider("Slow Update every n-th", 5, 20, config.Keeper_slowUpdateEveryNth),
-				widgets.NewEntrySlider("Delay compensation (ms)", -5, 5, config.Keeper_delayCompensation),
-				widgets.NewEntrySlider("Active Decks", 2, 4, config.Keeper_decks),
+				widgets.NewHeader(globalisation.ConfigurationTitle),
+				widgets.NewSubheader(globalisation.GeneralHeading),
+				appOptions,
 				widgets.NewSubheader(""), // Hacky Spacer
-				widgets.NewSubheader("Modules"),
-				widgets.NewTitle("Ableton® Link"),
-				widgets.NewBoolConfigWithSubmenu("Enabled", config.Link_enabled, ablOptions),
+				widgets.NewSubheader(globalisation.ModulesHeading),
+				widgets.NewTitle(globalisation.LinkModuleHeading),
+				widgets.NewBoolConfigWithSubmenu(globalisation.EnabledLabel, config.Link_enabled, ablOptions),
 				ablOptions,
 				widgets.NewSubheader(""), // Hacky Spacer
-				widgets.NewTitle("Open Sound Control"),
-				widgets.NewBoolConfigWithSubmenu("Enabled", config.Osc_enabled, oscOptions),
+				widgets.NewTitle(globalisation.OscModuleHeading),
+				widgets.NewBoolConfigWithSubmenu(globalisation.EnabledLabel, config.Osc_enabled, oscOptions),
 				oscOptions,
 				widgets.NewSubheader(""), // Hacky Spacer
-				widgets.NewTitle("sACN"),
-				widgets.NewBoolConfigWithSubmenu("Enabled", config.Sacn_enabled, sacnOptions),
+				widgets.NewTitle(globalisation.SacnModuleHeading),
+				widgets.NewBoolConfigWithSubmenu(globalisation.EnabledLabel, config.Sacn_enabled, sacnOptions),
 				sacnOptions,
 				widgets.NewSubheader(""), // Hacky Spacer
-				widgets.NewTitle("File Output"),
-				widgets.NewBoolConfigWithSubmenu("Enabled", config.File_enabled, fileOptions),
+				widgets.NewTitle(globalisation.FileModuleHeading),
+				widgets.NewBoolConfigWithSubmenu(globalisation.EnabledLabel, config.File_enabled, fileOptions),
 				fileOptions,
 				widgets.NewSubheader(""), // Hacky Spacer
-				widgets.NewTitle("Setlist Logging"),
-				widgets.NewBoolConfigWithSubmenu("Enabled", config.Setlist_enabled, setlistOptions),
+				widgets.NewTitle(globalisation.SetlistModuleHeading),
+				widgets.NewBoolConfigWithSubmenu(globalisation.EnabledLabel, config.Setlist_enabled, setlistOptions),
 				setlistOptions,
 			),
 		))
@@ -59,7 +57,8 @@ func newMainWindow(a fyne.App, config *helpers.RkbxLinkConfig) (fyne.Window, con
 
 	runningDisplay := container.NewHScroll( // Hacky way to get a minsize-able container
 		container.NewCenter(
-			widget.NewLabel("Stop rkbx_link to configure."),
+			widget.NewLabel(
+				globalisation.Get(globalisation.StopToConfigureLabel)),
 		))
 
 	runningDisplay.SetMinSize(fyne.Size{Width: 400, Height: 500})
@@ -81,8 +80,8 @@ func newMainWindow(a fyne.App, config *helpers.RkbxLinkConfig) (fyne.Window, con
 	ctx, cancel := context.WithCancel(context.Background())
 	cmd, c := setupRkbxLinkProcess(ctx, stateConnected, stateDisconnected, &w)
 
-	runButton := widget.NewButton("Start", func() {})
-	saveButton := widget.NewButton("Save", func() {
+	runButton := widget.NewButton(globalisation.Get(globalisation.StartLabel), func() {})
+	saveButton := widget.NewButton(globalisation.Get(globalisation.SaveLabel), func() {
 		fmt.Println(config.Sacn_targets.Get())
 		go helpers.StoreConfigFile(config, "./rkbx_link/config")
 	})
@@ -92,7 +91,7 @@ func newMainWindow(a fyne.App, config *helpers.RkbxLinkConfig) (fyne.Window, con
 			helpers.StoreConfigFile(config, "./rkbx_link/config")
 			cmd.Start()
 
-			runButton.SetText("Stop")
+			runButton.SetText(globalisation.Get(globalisation.StopLabel))
 			fmt.Println("[rkbx_launch] Running...")
 			running = true
 			saveButton.Hide()
@@ -142,11 +141,12 @@ func newMainWindow(a fyne.App, config *helpers.RkbxLinkConfig) (fyne.Window, con
 	)
 
 	w.SetCloseIntercept(func() {
-		w.Hide()
+		w.Close()
+		fynetooltip.DestroyWindowToolTipLayer(w.Canvas())
 		a.Quit()
 	})
 
-	w.SetContent(vbox)
+	w.SetContent(fynetooltip.AddWindowToolTipLayer(vbox, w.Canvas()))
 
 	return w, cancel
 }

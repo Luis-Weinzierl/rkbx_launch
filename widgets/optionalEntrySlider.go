@@ -12,7 +12,7 @@ func NewOptionalEntrySliderF(label string, min float64, max float64, step float6
 	check := widget.NewCheckWithData("", bindActive)
 
 	return container.NewVBox(
-		widget.NewLabel(label),
+		NewInfoLabel(label),
 		container.NewBorder(
 			nil, nil,
 			check,

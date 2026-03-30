@@ -1,6 +1,7 @@
 package main
 
 import (
+	"com/rkbx_launch/globalisation"
 	"com/rkbx_launch/widgets"
 
 	"fyne.io/fyne/v2"
@@ -10,7 +11,7 @@ import (
 )
 
 func NewLicenseWindow(a *fyne.App, registeredCallback func(string), cancelledCallback func()) fyne.Window {
-	licenseWindow := (*a).NewWindow("Register rkbx_link")
+	licenseWindow := (*a).NewWindow(globalisation.Get(globalisation.RegisterRkbxLink))
 
 	licenseValidator := validation.NewRegexp("([A-Z0-9]{8}-){3}[A-Z0-9]{8}", "Invalid License Key Format.")
 
@@ -32,7 +33,7 @@ func NewLicenseWindow(a *fyne.App, registeredCallback func(string), cancelledCal
 				widget.NewButton("I'm only testing rkbx_link", cancelledCallback),
 			),
 			nil, nil,
-			widgets.NewHero("Register rkbx_link"),
+			widgets.NewHero(globalisation.RegisterRkbxLink),
 		),
 	)
 

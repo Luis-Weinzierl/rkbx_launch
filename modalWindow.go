@@ -1,13 +1,15 @@
 package main
 
 import (
+	"com/rkbx_launch/globalisation"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 )
 
 func NewModalWindow(a *fyne.App, title string, hero string, accept string, deny string, acceptedCallback func(), cancelledCallback func()) fyne.Window {
-	modalWindow := (*a).NewWindow(title)
+	modalWindow := (*a).NewWindow(globalisation.Get(title))
 
 	hStyle := widget.RichTextStyleHeading
 	hStyle.Alignment = fyne.TextAlignCenter

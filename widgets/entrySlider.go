@@ -18,14 +18,14 @@ func NewEntrySlider(title string, min int, max int, bind binding.Int) *fyne.Cont
 	entry := widget.NewEntryWithData(entryBind)
 
 	return container.NewVBox(
-		widget.NewLabel(title),
+		NewInfoLabel(title),
 		container.New(layout.NewGridLayoutWithColumns(2), slider, entry),
 	)
 }
 
 func NewEntrySliderF(title string, min float64, max float64, bind binding.Float) *fyne.Container {
 	return container.NewVBox(
-		widget.NewLabel(title),
+		NewInfoLabel(title),
 		NewEntrySliderFWithoutLabel(min, max, 0.01, bind),
 	)
 }

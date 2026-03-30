@@ -15,7 +15,7 @@ func NewIpPortEntry(label string, bind binding.String) *fyne.Container {
 	entry.Validator = validation.NewRegexp(`^(\d{1,3}\.){3}\d{1,3}(:\d{1,5})$`, "Invalid IP address format")
 
 	return container.NewVBox(
-		widget.NewLabel(label),
+		NewInfoLabel(label),
 		entry,
 	)
 }
@@ -27,7 +27,7 @@ func NewIpEntry(label string, bind binding.String) *fyne.Container {
 	entry.Validator = validation.NewRegexp(`^(\d{1,3}\.){3}\d{1,3}$`, "Invalid IP address format")
 
 	return container.NewVBox(
-		widget.NewLabel(label),
+		NewInfoLabel(label),
 		entry,
 	)
 }

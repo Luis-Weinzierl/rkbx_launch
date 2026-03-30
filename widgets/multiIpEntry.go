@@ -25,7 +25,7 @@ func NewMultiIpEntry(label string, bind binding.StringList) *fyne.Container {
 	}))
 
 	return container.NewVBox(
-		widget.NewLabel(label),
+		NewInfoLabel(label),
 		ipsScroll,
 		container.NewBorder(nil, nil, nil,
 			widget.NewButton("Add IP", func() {

@@ -2,8 +2,10 @@ package main
 
 import (
 	"bufio"
+	"com/rkbx_launch/globalisation"
 	"com/rkbx_launch/helpers"
 	"context"
+	"embed"
 	"fmt"
 	"io"
 	"net/http"
@@ -14,13 +16,26 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/lang"
 )
+
+//go:embed lang
+var languages embed.FS
 
 const configFilePath = "./rkbx_link/config"
 const linkDir = "./rkbx_link/"
 
 func main() {
 	fmt.Println("[rkbx_launch] Starting...")
+
+	enBytes, err := languages.ReadFile("lang/en.json")
+
+	if err != nil {
+		fmt.Println("[rkbx_launch] Failed to read embedded languages", err)
+	}
+
+	lang.AddTranslationsFS(languages, "lang")
+	globalisation.LoadDefaultLanguage(enBytes)
 
 	config := helpers.NewBoundRkbxConfig()
 	a := app.NewWithID("rkbx_launch_app")

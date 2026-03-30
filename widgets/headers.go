@@ -1,13 +1,15 @@
 package widgets
 
 import (
+	"com/rkbx_launch/globalisation"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/theme"
 )
 
 func NewHero(text string) *canvas.Text {
-	header := canvas.NewText(text, fyne.CurrentApp().Settings().Theme().Color(theme.ColorNameForeground, 0))
+	header := canvas.NewText(globalisation.Get(text), fyne.CurrentApp().Settings().Theme().Color(theme.ColorNameForeground, 0))
 	header.TextSize = 32
 	header.Alignment = fyne.TextAlignCenter
 
@@ -15,7 +17,7 @@ func NewHero(text string) *canvas.Text {
 }
 
 func NewHeader(text string) *canvas.Text {
-	header := canvas.NewText(text, fyne.CurrentApp().Settings().Theme().Color(theme.ColorNameForeground, 0))
+	header := canvas.NewText(globalisation.Get(text), fyne.CurrentApp().Settings().Theme().Color(theme.ColorNameForeground, 0))
 	header.TextSize = 32
 	header.Alignment = fyne.TextAlignLeading
 	header.TextStyle.Bold = true
@@ -24,7 +26,7 @@ func NewHeader(text string) *canvas.Text {
 }
 
 func NewSubheader(text string) *canvas.Text {
-	header := canvas.NewText(text, fyne.CurrentApp().Settings().Theme().Color(theme.ColorNameForeground, 0))
+	header := canvas.NewText(globalisation.Get(text), fyne.CurrentApp().Settings().Theme().Color(theme.ColorNameForeground, 0))
 	header.TextSize = 24
 	header.Alignment = fyne.TextAlignLeading
 	header.TextStyle.Bold = true
@@ -33,7 +35,7 @@ func NewSubheader(text string) *canvas.Text {
 }
 
 func NewTitle(text string) *canvas.Text {
-	header := canvas.NewText(text, fyne.CurrentApp().Settings().Theme().Color(theme.ColorNameForeground, 0))
+	header := canvas.NewText(globalisation.Get(text), fyne.CurrentApp().Settings().Theme().Color(theme.ColorNameForeground, 0))
 	header.TextSize = 20
 	header.Alignment = fyne.TextAlignLeading
 	header.TextStyle.Bold = true
