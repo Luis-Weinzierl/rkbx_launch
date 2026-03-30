@@ -12,8 +12,8 @@ func NewOscOptions(config *helpers.BoundRkbxConfig) *fyne.Container {
 	options := binding.BindStringList(&[]string{"string", "int", "float"})
 
 	oscOptions := container.NewVBox(
-		NewIPEntry("Source IP Address", config.Osc_source),
-		NewIPEntry("Destination IP Address", config.Osc_destination),
+		NewIpPortEntry("Source IP Address", config.Osc_source),
+		NewIpPortEntry("Destination IP Address", config.Osc_destination),
 		NewEntrySlider("Send Every n-th Message", 1, 4, config.Osc_sendEveryNth),
 		NewSelectEntry("Phrase Output Format", config.Osc_phraseOutputFormat, options),
 	)
