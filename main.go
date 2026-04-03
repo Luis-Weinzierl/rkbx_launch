@@ -28,18 +28,10 @@ const linkDir = "./rkbx_link/"
 func main() {
 	fmt.Println("[rkbx_launch] Starting...")
 
-	enBytes, err := languages.ReadFile("lang/en.json")
-
-	if err != nil {
-		fmt.Println("[rkbx_launch] Failed to read embedded languages", err)
-	}
-
-	lang.AddTranslationsFS(languages, "lang")
-	globalisation.LoadDefaultLanguage(enBytes)
+	initTranslations()
 
 	config := helpers.NewBoundRkbxConfig()
-	a := app.NewWithID("rkbx_launch_app")
-
+	a := app.New()
 	a.Settings().SetTheme(&RkbxTheme{})
 
 	mainWindow, cancel := newMainWindow(a, &config)
@@ -96,17 +88,24 @@ func main() {
 			globalisation.UpdateModalId,
 			func() {
 				// Download latest version and continue to main / license window
+				helpers.LoadConfigFile(configFilePath, &config)
+				licenseKey, _ := config.App_licenseKey.Get()
 				downloadLatestVersion()
 				modal.Hide()
+				helpers.LoadConfigFile(configFilePath, &config)
+				config.App_licenseKey.Set(licenseKey)
+				helpers.StoreConfigFile(&config, configFilePath)
 				mainLoop(&config, licenseWindow, mainWindow)
 			},
 			func() {
 				modal.Hide()
+				helpers.LoadConfigFile(configFilePath, &config)
 				mainLoop(&config, licenseWindow, mainWindow)
 			},
 		)
 		modal.Show()
 	} else {
+		helpers.LoadConfigFile(configFilePath, &config)
 		mainLoop(&config, licenseWindow, mainWindow)
 	}
 
@@ -120,8 +119,6 @@ func main() {
 }
 
 func mainLoop(config *helpers.RkbxLinkConfig, licenseWindow fyne.Window, mainWindow fyne.Window) {
-	helpers.LoadConfigFile(configFilePath, config)
-
 	if config.IsEvaluation() {
 		licenseWindow.Show()
 	} else {
@@ -214,4 +211,13 @@ func downloadLatestVersion() {
 	helpers.HttpDownloadFile("https://github.com/grufkork/rkbx_link/releases/latest/download/rkbx_link_win.zip", "latest.temp.zip")
 	helpers.Unzip("latest.temp.zip", linkDir)
 	os.Remove("latest.temp.zip")
+}
+
+func initTranslations() {
+	enBytes, err := languages.ReadFile("lang/en.json")
+	if err != nil {
+		fmt.Println("[rkbx_launch] Failed to read embedded languages", err)
+	}
+	lang.AddTranslationsFS(languages, "lang")
+	globalisation.LoadDefaultLanguage(enBytes)
 }

@@ -348,6 +348,7 @@ func NewBoundRkbxConfig() RkbxLinkConfig {
 	config.Sacn_mode = newStringBindingWithListener(listener)
 	config.Sacn_sourceName = newStringBindingWithListener(listener)
 
+	// When the app gets registered, we need to give all the options for available versions
 	config.App_licenseKey.AddListener(binding.NewDataListener(config.updateAvaliableVersions))
 
 	return config
