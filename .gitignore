@@ -28,7 +28,6 @@ go.work.sum
 .env
 
 rkbx_link*
-version_exe
 
 # Editor/IDE
 # .idea/
