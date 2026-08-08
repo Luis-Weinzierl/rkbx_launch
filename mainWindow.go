@@ -30,24 +30,24 @@ func newMainWindow(a fyne.App, config *helpers.RkbxLinkConfig) (fyne.Window, con
 				widgets.NewHeader(globalisation.ConfigurationTitle),
 				widgets.NewSubheader(globalisation.GeneralHeading),
 				appOptions,
-				widgets.NewVerticalSpacer(), // Hacky Spacer
+				widgets.NewVerticalSpacer(),
 				widgets.NewSubheader(globalisation.ModulesHeading),
 				widgets.NewTitle(globalisation.LinkModuleHeading),
 				widgets.NewBoolConfigWithSubmenu(globalisation.EnabledLabel, config.Link_enabled, ablOptions),
 				ablOptions,
-				widgets.NewVerticalSpacer(), // Hacky Spacer
+				widgets.NewVerticalSpacer(),
 				widgets.NewTitle(globalisation.OscModuleHeading),
 				widgets.NewBoolConfigWithSubmenu(globalisation.EnabledLabel, config.Osc_enabled, oscOptions),
 				oscOptions,
-				widgets.NewVerticalSpacer(), // Hacky Spacer
+				widgets.NewVerticalSpacer(),
 				widgets.NewTitle(globalisation.SacnModuleHeading),
 				widgets.NewBoolConfigWithSubmenu(globalisation.EnabledLabel, config.Sacn_enabled, sacnOptions),
 				sacnOptions,
-				widgets.NewVerticalSpacer(), // Hacky Spacer
+				widgets.NewVerticalSpacer(),
 				widgets.NewTitle(globalisation.FileModuleHeading),
 				widgets.NewBoolConfigWithSubmenu(globalisation.EnabledLabel, config.File_enabled, fileOptions),
 				fileOptions,
-				widgets.NewVerticalSpacer(), // Hacky Spacer
+				widgets.NewVerticalSpacer(),
 				widgets.NewTitle(globalisation.SetlistModuleHeading),
 				widgets.NewBoolConfigWithSubmenu(globalisation.EnabledLabel, config.Setlist_enabled, setlistOptions),
 				setlistOptions,

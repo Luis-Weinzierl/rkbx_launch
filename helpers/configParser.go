@@ -355,7 +355,7 @@ func NewBoundRkbxConfig() RkbxLinkConfig {
 }
 
 func (config RkbxLinkConfig) updateAvaliableVersions() {
-	availVersions := []string{"7.2.10", "7.2.8", "7.2.6", "7.2.4", "7.2.3", "7.2.2", "7.1.4"}
+	availVersions := []string{"7.2.17", "7.2.16", "7.2.14", "7.2.13", "7.2.10", "7.2.8", "7.2.6", "7.2.4", "7.2.3", "7.2.2", "7.1.4"}
 
 	if config.IsEvaluation() {
 		availVersions = []string{"7.2.2"}
